@@ -14,7 +14,11 @@
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #define Pi_180 0.01745329251994
+#define Rad2Deg 57.2957795
+#define Deg2Rad 0.0174532925
 int funny_sign_count=0;
+
+TCanvas *Results = new TCanvas("Results","Results",1000,1000);
 
 // TMatrixD y = new TMatrixD(); // daugters * variables 
 // TMatrixD V = new TMatrixD();
@@ -29,7 +33,9 @@ Float_t mp = 938.272;
 Float_t mn = 939.565;
 Float_t md = 1875.612;
 Int_t fNdf = 5; // 4+NumberOfConstraints
-TLorentzVector pinit;
+// TLorentzVector pinit(0,0,791.073,2035.61);
+TLorentzVector pinit(0.,0.,0.,0.);
+Float_t fChi2, fProb;
 
 void Counting(ULong64_t ent){
 	if(ent%10000==0)
@@ -101,30 +107,40 @@ void SetCovariance(Float_t phi1_er, Float_t th1_er, Float_t en1_er, Float_t phi2
 	// cout<<"Set Covariance "<<V(0,0)<<" "<<V(1,1)<<" "<<V(2,2)<<endl;
 }
 
-TMatrixD f_eval()
+TMatrixD f_eval()	//zmiana wzorów aby pasowaly do naszych zmiennych
 {
 	Int_t cov_dim = 3;
 	TMatrixD d;
     d.ResizeTo(1, 1);
-    double Px = 0., Py = 0., Pz = 0., E = 0.;
+    Double_t P = 0., Px = 0., Py = 0., Pz = 0., E = 0.;
     Px += pinit.Px();
     Py += pinit.Py();
     Pz += pinit.Pz();
     E += pinit.E();
-        for (int q = 0; q < 2; q++)
-        {
-            E -= std::sqrt((1. / y(0 + q * cov_dim, 0)) *
-                               (1. / y(0 + q * cov_dim, 0)) +
-                           mp * mp);
-            Px -= (1. / y(0 + q * cov_dim, 0)) *
-                  std::sin(y(1 + q * cov_dim, 0)) *
-                  std::cos(y(2 + q * cov_dim, 0));
-            Py -= (1. / y(0 + q * cov_dim, 0)) *
-                  std::sin(y(1 + q * cov_dim, 0)) *
-                  std::sin(y(2 + q * cov_dim, 0));
-            Pz -= (1. / y(0 + q * cov_dim, 0)) *
-                  std::cos(y(1 + q * cov_dim, 0));
 
+    // cout<<"E: "<<E<<"Px: "<<Px<<"Py: "<<Py<<"Pz: "<<Pz<<endl;
+    // cout<<"pinit px: "<<pinit.Px()<<"pinit py: "<<pinit.Py()<<"pinit pz: "<<pinit.Pz()<<"pinit E: "<<pinit.E()<<endl;
+
+        for (int q = 0; q < 2; q++) 
+        {
+            // E -= std::sqrt((1. / y(0 + q * cov_dim, 0)) *
+            //                    (1. / y(0 + q * cov_dim, 0)) +
+            //                mp * mp);
+            // Px -= (1. / y(0 + q * cov_dim, 0)) *
+            //       std::sin(y(1 + q * cov_dim, 0)) *
+            //       std::cos(y(2 + q * cov_dim, 0));
+            // Py -= (1. / y(0 + q * cov_dim, 0)) *
+            //       std::sin(y(1 + q * cov_dim, 0)) *
+            //       std::sin(y(2 + q * cov_dim, 0));
+            // Pz -= (1. / y(0 + q * cov_dim, 0)) *
+            //       std::cos(y(1 + q * cov_dim, 0));
+
+        	E-=y(2+q*cov_dim,0)+mp;
+
+        	P=sqrt(pow(E+mp,2)-mp*mp);
+        	Px-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*cos(y(0+q*cov_dim,0)*Deg2Rad);
+			Py-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*sin(y(0+q*cov_dim,0)*Deg2Rad);
+			Pz-=P*cos(y(1+q*cov_dim,0)*Deg2Rad);
              // cout<<"E: "<<E<<"Px: "<<Px<<"Py: "<<Py<<"Pz: "<<Pz<<endl;
         }
         d(0, 0) = std::pow(E, 2) - std::pow(Px, 2) - std::pow(Py, 2) -
@@ -141,50 +157,47 @@ TMatrixD Feta_eval()
     H.ResizeTo(1, 6);
     H.Zero();
     Int_t cov_dim=3;
-    double Px = 0., Py = 0., Pz = 0., E = 0.;
+    double P = 0., Px = 0., Py = 0., Pz = 0., E = 0.;
+
         Px += pinit.Px();
         Py += pinit.Py();
         Pz += pinit.Pz();
         E += pinit.E();
+
         for (int q = 0; q < 2; q++)
         {
-            E -= std::sqrt((1. / y(0 + q * cov_dim, 0)) *
-                               (1. / y(0 + q * cov_dim, 0)) +
-                           mp * mp);
-            Px -= (1. / y(0 + q * cov_dim, 0)) *
-                  std::sin(y(1 + q * cov_dim, 0)) *
-                  std::cos(y(2 + q * cov_dim, 0));
-            Py -= (1. / y(0 + q * cov_dim, 0)) *
-                  std::sin(y(1 + q * cov_dim, 0)) *
-                  std::sin(y(2 + q * cov_dim, 0));
-            Pz -= (1. / y(0 + q * cov_dim, 0)) *
-                  std::cos(y(1 + q * cov_dim, 0));
+            E+=y(2+q*cov_dim,0)+mp;
+
+        	P=sqrt(pow(y(2+q*cov_dim,0)+mp+mp,2)-mp*mp);
+        	Px-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*cos(y(0+q*cov_dim,0)*Deg2Rad);
+			Py-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*sin(y(0+q*cov_dim,0)*Deg2Rad);
+			Pz-=P*cos(y(1+q*cov_dim,0)*Deg2Rad);
         }
 
         for (int q = 0; q < 2; q++)
         {
-            double Pi = 1. / y(0 + q * cov_dim, 0);
+            double Pi = sqrt(pow(y(2+q*cov_dim,0)+mp+mp,2)-mp*mp);
             double Ei = std::sqrt(Pi * Pi + mp * mp);
             H(0, 0 + q * cov_dim) =
                 2 * E * (std::pow(Pi, 3) / Ei) -
                 2 * std::pow(Pi, 2) * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::cos(y(2 + q * cov_dim, 0)) * Px -
+                    std::cos(y(0 + q * cov_dim, 0)) * Px -
                 2 * std::pow(Pi, 2) * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::sin(y(2 + q * cov_dim, 0)) * Py -
+                    std::sin(y(0 + q * cov_dim, 0)) * Py -
                 2 * std::pow(Pi, 2) * std::cos(y(1 + q * cov_dim, 0)) * Pz;
 
             H(0, 1 + q * cov_dim) =
                 2 * Pi * std::cos(y(1 + q * cov_dim, 0)) *
-                    std::cos(y(2 + q * cov_dim, 0)) * Px +
+                    std::cos(y(0 + q * cov_dim, 0)) * Px +
                 2 * Pi * std::cos(y(1 + q * cov_dim, 0)) *
-                    std::sin(y(2 + q * cov_dim, 0)) * Py -
+                    std::sin(y(0 + q * cov_dim, 0)) * Py -
                 2 * Pi * std::sin(y(1 + q * cov_dim, 0)) * Pz;
 
             H(0, 2 + q * cov_dim) =
                 -2 * Pi * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::sin(y(2 + q * cov_dim, 0)) * Px +
+                    std::sin(y(0 + q * cov_dim, 0)) * Px +
                 2 * Pi * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::cos(y(2 + q * cov_dim, 0)) * Py;
+                    std::cos(y(0 + q * cov_dim, 0)) * Py;
         }
     
     	// cout<<"Feta eval "<<H(0,0)<<" "<<H(0,1)<<" "<<H(0,2)<<endl;
@@ -195,8 +208,8 @@ TMatrixD Feta_eval()
 
 bool fit()
 {
-	TMatrixD D = Feta_eval();
-    TMatrixD d = f_eval();
+	// TMatrixD D = Feta_eval();
+ //    TMatrixD d = f_eval();
     double lr = 0.5;
     Int_t cov_dim = 3;
     Int_t fN = 2;
@@ -205,8 +218,8 @@ bool fit()
     alpha0 = y;
     alpha = alpha0;
     double chi2 = 1e6;
-    // TMatrixD D = Feta_eval();
-    // TMatrixD d = f_eval();
+    TMatrixD D = Feta_eval();
+    TMatrixD d = f_eval();
 
     for (int q = 0; q < 3; q++)
     {
@@ -235,16 +248,16 @@ bool fit()
         // 2. difference between constraints (for successive iterations)  d
         // 3. difference between chi2 (for successive iterations)  chisqrd
         // check converge for 'y' measurements
-        double sum0 = 0;
-        for(int p=0; p<(fN*3); p++){
-            sum0 += (neu_alpha(p,0)-alpha(p,0))*(neu_alpha(p,0)-alpha(p,0));
-        }
-        double d_const = fabs(d(0,0));
-        if(fabs(chi2-chisqrd)<1e-3 && d_const<10 && sqrt(sum0)<1e-3){
-            // fIteration = q;
-            // fConverged = true;
-            break;
-        }
+        // double sum0 = 0;
+        // for(int p=0; p<(fN*3); p++){
+        //     sum0 += (neu_alpha(p,0)-alpha(p,0))*(neu_alpha(p,0)-alpha(p,0));
+        // }
+        // double d_const = fabs(d(0,0));
+        // if(fabs(chi2-chisqrd)<1e-3 && d_const<10 && sqrt(sum0)<1e-3){
+        //     // fIteration = q;
+        //     // fConverged = true;
+        //     break;
+        // }
         
         chi2 = chisqrd;
         alpha0 = alpha;
@@ -255,8 +268,8 @@ bool fit()
     }
 
     y = alpha;
-    // fChi2 = chi2;
-    // fProb = TMath::Prob(chi2, fNdf);
+    fChi2 = chi2;
+    fProb = TMath::Prob(chi2, fNdf);
 
     // -----------------------------------------
     // Pull
@@ -285,26 +298,36 @@ TMatrixD GetFitVal()
 {
 	TMatrixD y_fit;
 	TVector3 Convert;
+	TLorentzVector *v;
+	v = new TLorentzVector(0,0,0,0);
 	y_fit.ResizeTo(6,1);
 	Int_t cov_dim = 3;
 	Int_t fN = 2;
+	Float_t E = 0., P = 0., Px = 0., Py = 0., Pz = 0.;
 	for(int val = 0; val < fN; val++)
 	{
-		double Px = (1. / y(0 + val * cov_dim, 0)) *
-                    std::sin(y(1 + val * cov_dim, 0)) *
-                    std::cos(y(2 + val * cov_dim, 0));
-    	double Py = (1. / y(0 + val * cov_dim, 0)) *
-                    std::sin(y(1 + val * cov_dim, 0)) *
-                    std::sin(y(2 + val * cov_dim, 0));
-    	double Pz = (1. / y(0 + val * cov_dim, 0)) * std::cos(y(1 + val * cov_dim, 0));
+		E=y(2+val*cov_dim,0)+mp;
 
-    	Convert.SetX(Px);
-    	Convert.SetY(Py);
-    	Convert.SetZ(Pz);
+        P=sqrt(pow(y(2+val*cov_dim,0)+mp+mp,2)-mp*mp);
+        Px=P*sin(y(1+val*cov_dim,0)*Deg2Rad)*cos(y(0+val*cov_dim,0)*Deg2Rad);
+		Py=P*sin(y(1+val*cov_dim,0)*Deg2Rad)*sin(y(0+val*cov_dim,0)*Deg2Rad);
+		Pz=P*cos(y(1+val*cov_dim,0)*Deg2Rad);
 
-    	y_fit(0 + val * cov_dim, 0) = Convert.Theta();
-    	y_fit(1 + val * cov_dim, 0) = Convert.Phi();
-    	y_fit(2 + val * cov_dim, 0) = Convert.Mag();
+    	// Convert.SetX(Px);
+    	// Convert.SetY(Py);
+    	// Convert.SetZ(Pz);
+
+    	// y_fit(0 + val * cov_dim, 0) = Convert.Theta();
+    	// y_fit(1 + val * cov_dim, 0) = Convert.Phi();
+    	// y_fit(2 + val * cov_dim, 0) = Convert.Mag();
+
+		v->SetPxPyPzE(Px,Py,Pz,E);
+
+		y_fit(0 + val * cov_dim, 0) = v->Phi()*Rad2Deg;
+		y_fit(1 + val * cov_dim, 0) = v->Theta()*Rad2Deg;
+		y_fit(2 + val * cov_dim, 0) = v->E()-mp; //ODJAC MASE
+
+
 	}
 
 	return y_fit;
@@ -351,10 +374,24 @@ int GenEv_refit(){
 
 TVector3 help;
 help.SetMagThetaPhi(sqrt((160*160)+2*1875.612*160), 0*Pi_180, 0*Pi_180);
-TLorentzVector pinit(help, 1875.612);
-TLorentzVector LVmp(0,0,0,mp);
-pinit+=LVmp;
+// TLorentzVector pinit(help, 1875.612+160.);
+// TLorentzVector LVmp(0,0,0,mp);
+// pinit+=LVmp;
 
+// cout<<"help px: "<<help.Px()<<"help py: "<<help.Py()<<"help pz: "<<help.Pz()<<endl;
+cout<<"pinit px: "<<pinit.Px()<<"pinit py: "<<pinit.Py()<<"pinit pz: "<<pinit.Pz()<<"pinit E: "<<pinit.E()<<endl;
+// return 0;
+
+
+// 	 TLorentzVector proj1, targ1, beam1;
+//   TLorentzVector targC, beamC;
+//   proj1.SetPxPyPzE(0,0,pion_mom,pion_en);
+//   targ1.SetPxPyPzE(0,0,0,mp);
+//   targC.SetPxPyPzE(0,0,0,mC);
+//   beam1=proj1+targ1;
+//   beamC=proj1+targC;
+// 	 float  pion_mom=0.690; //GeV/c                                                                                               
+//   float pion_en = sqrt( pion_mom*pion_mom + mpim*mpim );
 
 
 
@@ -465,7 +502,6 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 	tree->Branch("pTyp2",&pTyp2,"pTyp2/F");
 	tree->Branch("pTyp3",&pTyp3,"pTyp3/F");
 
-
 	tree->Branch("Th1",&Th1,"Th1/F");
 	tree->Branch("Phi1",&Phi1,"Phi1/F");
 	tree->Branch("En1",&En1,"En1/F");
@@ -477,7 +513,6 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 	tree->Branch("Th3",&Th3,"Th3/F");
 	tree->Branch("Phi3",&Phi3,"Phi3/F");
 	tree->Branch("En3",&En3,"En3/F");
-
 
 	tree->Branch("Th1_sm",&Th1_sm,"Th1_sm/F");
 	tree->Branch("Phi1_sm",&Phi1_sm,"Phi1_sm/F");
@@ -530,10 +565,21 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 	TTree *treef = new TTree("T","Fitted values");
 
-	treef->Branch("pTyp1",&pTyp1,"pTyp1/F");
-	treef->Branch("pTyp2",&pTyp2,"pTyp2/F");
-	treef->Branch("pTyp3",&pTyp3,"pTyp3/F");
+	treef->Branch("Th1",&Th1,"Th1/F");
+	treef->Branch("Phi1",&Phi1,"Phi1/F");
+	treef->Branch("En1",&En1,"En1/F");
 
+	treef->Branch("Th2",&Th2,"Th2/F");
+	treef->Branch("Phi2",&Phi2,"Phi2/F");
+	treef->Branch("En2",&En2,"En2/F");
+
+	treef->Branch("Th1_sm",&Th1_sm,"Th1_sm/F");
+	treef->Branch("Phi1_sm",&Phi1_sm,"Phi1_sm/F");
+	treef->Branch("En1_sm",&En1_sm,"En1_sm/F");
+
+	treef->Branch("Th2_sm",&Th2_sm,"Th2_sm/F");
+	treef->Branch("Phi2_sm",&Phi2_sm,"Phi2_sm/F");
+	treef->Branch("En2_sm",&En2_sm,"En2_sm/F");
 
 	treef->Branch("Th1_f",&Th1_f,"Th1_f/F");
 	treef->Branch("Phi1_f",&Phi1_f,"Phi1_f/F");
@@ -543,20 +589,35 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 	treef->Branch("Phi2_f",&Phi2_f,"Phi2_f/F");
 	treef->Branch("En2_f",&En2_f,"En2_f/F");
 
-	treef->Branch("Th3_f",&Th3_f,"Th3_f/F");
-	treef->Branch("Phi3_f",&Phi3_f,"Phi3_f/F");
-	treef->Branch("En3_f",&En3_f,"En3_f/F");
+	treef->Branch("Chi2",&fChi2,"Chi2/F");
+	treef->Branch("Probability",&fProb,"Probability/F");
 
 	TH1F *hMM1_f= new TH1F("hMM1_f","Smeared Missing Mass of 1st part.",100,900,1000);
 	TH1F *hMM2_f= new TH1F("hMM2_f","Smeared Missing Mass of 2nd part.",100,900,1000);
 	TH1F *hMM3_f= new TH1F("hMM3_f","Smeared Missing Mass of 3rd part.",100,900,1000);
 
+	TH1F *Th1_prev=new TH1F("Th1_prev","Th1_prev",200,0,100);
+	TH1F *Phi1_prev=new TH1F("Phi1_prev","Phi1_prev",200,0,200);
+	TH1F *Th2_prev=new TH1F("Th2_prev","Th2_prev",200,0,100);
+	TH1F *Phi2_prev=new TH1F("Phi2_prev","Phi2_prev",200,0,200);
+	TH1F *En1_prev=new TH1F("En1_prev","En1_prev",200,0,200);
+	TH1F *En2_prev=new TH1F("En2_prev","En2_prev",200,0,200);
+
+	TH1F *Th1_after=new TH1F("Th1_after","Th1_after",200,0,100);
+	TH1F *Phi1_after=new TH1F("Phi1_after","Phi1_after",200,0,200);
+	TH1F *Th2_after=new TH1F("Th2_after","Th2_after",200,0,100);
+	TH1F *Phi2_after=new TH1F("Phi2_after","Phi2_after",200,0,200);
+	TH1F *En1_after=new TH1F("En1_after","En1_after",200,0,200);
+	TH1F *En2_after=new TH1F("En2_after","En2_after",200,0,200);
+
 
 	// for(ULong64_t i=0;i<entries;i++){
-	for(ULong64_t i=0;i<100000;i++){
+	for(ULong64_t i=0;i<300000;i++){
 
 		Counting(i);
 		tree_old->GetEntry(i);
+		fChi2=0;
+		fProb=0;
 		Th1_sm=Th1+rnd->Gaus(mean_Th1,sigma_Th1);
 		Th2_sm=Th2+rnd->Gaus(mean_Th2,sigma_Th2);
 		Th3_sm=Th3+rnd->Gaus(mean_Th3,sigma_Th3);
@@ -616,7 +677,8 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 
 		SetValues(Phi1_sm, Th1_sm, En1_sm, Phi2_sm, Th2_sm, En2_sm);
-		SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2);
+		// SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2);
+		SetCovariance(30.,30.,30.,30.,30.,30.);
 		// f_eval();
 		// Feta_eval();
 		fit();
@@ -640,6 +702,20 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 		hMM2_f->Fill(MM2_f);
 		hMM3_f->Fill(MM3_f);
 
+		Th1_prev->Fill(Th1_sm);
+		Phi1_prev->Fill(Phi1_sm);
+		Th2_prev->Fill(Th2_sm);
+		Phi2_prev->Fill(Phi2_sm);
+		En1_prev->Fill(En1_sm);
+		En2_prev->Fill(En2_sm);
+
+		Th1_after->Fill(Th1_f);
+		Phi1_after->Fill(Phi1_f);
+		Th2_after->Fill(Th2_f);
+		Phi2_after->Fill(Phi2_f);
+		En1_after->Fill(En1_f);
+		En2_after->Fill(En2_f);
+
 
 		// cout<<"Phi1: "<<Phi1_f<<" ";
 		// cout<<"Phi2: "<<Phi2_f<<" ";
@@ -661,13 +737,49 @@ hMM1_sm->Write();
 hMM2_sm->Write();
 hMM3_sm->Write();
 
-f->Close();
+	Results->Divide(3,4);
+
+	Results->cd(1);
+	Th1_prev->Draw();
+	Results->cd(5);
+	Phi1_prev->Draw();
+	Results->cd(3);
+	Th2_prev->Draw();
+	Results->cd(7);
+	Phi2_prev->Draw();
+	Results->cd(2);
+	Th1_after->Draw();
+	Results->cd(6);
+	Phi1_after->Draw();
+	Results->cd(4);
+	Th2_after->Draw();
+	Results->cd(8);
+	Phi2_after->Draw();
+	Results->cd(9);
+	En1_prev->Draw();
+	Results->cd(10);
+	En1_after->Draw();
+	Results->cd(11);
+	En2_prev->Draw();
+	Results->cd(12);
+	En2_after->Draw();
+
+	Results->Write();
+	Results->SaveAs("Results.png");
+
+
 
 ff->cd();
 treef->Write();
 hMM1_f->Write();
 hMM2_f->Write();
 hMM3_f->Write();
+hMM1_sm->Write();
+hMM2_sm->Write();
+hMM3_sm->Write();
+
+f->Close();
+
 ff->Close();
 f_old->Close();
 fend = clock();
