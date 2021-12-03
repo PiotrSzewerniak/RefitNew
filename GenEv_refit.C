@@ -65,8 +65,8 @@ void Counting(ULong64_t ent){
 
 Float_t calc_MM(Float_t en1, Float_t en2, Float_t th1, Float_t th2, Float_t phi1, Float_t phi2, int cat){
 	Float_t MMass=0;
-  Float_t Mp= 938.272;
-  Float_t Md=1875.612;
+  	Float_t Mp= 938.272;
+  	Float_t Md=1875.612;
 	Float_t Mn= 939.565;
 	Float_t Ed=160.0;
 	Float_t M1=0,M2=0,M3=0;
@@ -107,48 +107,47 @@ void SetCovariance(Float_t phi1_er, Float_t th1_er, Float_t en1_er, Float_t phi2
 	// cout<<"Set Covariance "<<V(0,0)<<" "<<V(1,1)<<" "<<V(2,2)<<endl;
 }
 
-TMatrixD f_eval()	//zmiana wzorów aby pasowaly do naszych zmiennych
+TMatrixD f_eval()
 {
 	Int_t cov_dim = 3;
 	TMatrixD d;
     d.ResizeTo(1, 1);
-    Double_t P = 0., Px = 0., Py = 0., Pz = 0., E = 0.;
-    Px += pinit.Px();
-    Py += pinit.Py();
-    Pz += pinit.Pz();
-    E += pinit.E();
+    Float_t P, Px, Py, Pz, E;
+    // Px = pinit.Px();
+    // Py = pinit.Py();
+    // Pz = pinit.Pz();
+    // E = pinit.E();
+    Px=0;
+    Py=0;
+    Pz=791.073;
+    E=2973.88;
 
-    // cout<<"E: "<<E<<"Px: "<<Px<<"Py: "<<Py<<"Pz: "<<Pz<<endl;
-    // cout<<"pinit px: "<<pinit.Px()<<"pinit py: "<<pinit.Py()<<"pinit pz: "<<pinit.Pz()<<"pinit E: "<<pinit.E()<<endl;
+    for (int q = 0; q < 2; q++) 
+    {
+        // E -= std::sqrt((1. / y(0 + q * cov_dim, 0)) *
+        //                    (1. / y(0 + q * cov_dim, 0)) +
+        //                mp * mp);
+        // Px -= (1. / y(0 + q * cov_dim, 0)) *
+        //       std::sin(y(1 + q * cov_dim, 0)) *
+        //       std::cos(y(2 + q * cov_dim, 0));
+        // Py -= (1. / y(0 + q * cov_dim, 0)) *
+        //       std::sin(y(1 + q * cov_dim, 0)) *
+        //       std::sin(y(2 + q * cov_dim, 0));
+        // Pz -= (1. / y(0 + q * cov_dim, 0)) *
+        //       std::cos(y(1 + q * cov_dim, 0));
 
-        for (int q = 0; q < 2; q++) 
-        {
-            // E -= std::sqrt((1. / y(0 + q * cov_dim, 0)) *
-            //                    (1. / y(0 + q * cov_dim, 0)) +
-            //                mp * mp);
-            // Px -= (1. / y(0 + q * cov_dim, 0)) *
-            //       std::sin(y(1 + q * cov_dim, 0)) *
-            //       std::cos(y(2 + q * cov_dim, 0));
-            // Py -= (1. / y(0 + q * cov_dim, 0)) *
-            //       std::sin(y(1 + q * cov_dim, 0)) *
-            //       std::sin(y(2 + q * cov_dim, 0));
-            // Pz -= (1. / y(0 + q * cov_dim, 0)) *
-            //       std::cos(y(1 + q * cov_dim, 0));
+       	E-=y(2+q*cov_dim,0)+mp;
 
-        	E-=y(2+q*cov_dim,0)+mp;
+        P=sqrt(pow(E+mp,2)-mp*mp);
+        Px-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*cos(y(0+q*cov_dim,0)*Deg2Rad);
+		Py-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*sin(y(0+q*cov_dim,0)*Deg2Rad);
+		Pz-=P*cos(y(1+q*cov_dim,0)*Deg2Rad);
+    }
 
-        	P=sqrt(pow(E+mp,2)-mp*mp);
-        	Px-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*cos(y(0+q*cov_dim,0)*Deg2Rad);
-			Py-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*sin(y(0+q*cov_dim,0)*Deg2Rad);
-			Pz-=P*cos(y(1+q*cov_dim,0)*Deg2Rad);
-             // cout<<"E: "<<E<<"Px: "<<Px<<"Py: "<<Py<<"Pz: "<<Pz<<endl;
-        }
-        d(0, 0) = std::pow(E, 2) - std::pow(Px, 2) - std::pow(Py, 2) -
-                  std::pow(Pz, 2) - mn * mn;
-    
-	// cout<<"feval "<<d(0,0)<<endl;
+    // cout<<"E: "<<E<<"P: "<<P<<"Px: "<<Px<<"Py: "<<Py<<"Pz: "<<Pz<<endl;
+
+    d(0, 0) = std::pow(E, 2) - std::pow(Px, 2) - std::pow(Py, 2) - std::pow(Pz, 2) - mn * mn;
 	return d;
-
 }
 
 TMatrixD Feta_eval()
@@ -157,18 +156,24 @@ TMatrixD Feta_eval()
     H.ResizeTo(1, 6);
     H.Zero();
     Int_t cov_dim=3;
-    double P = 0., Px = 0., Py = 0., Pz = 0., E = 0.;
+    Float_t P, Px, Py, Pz, E;
 
-        Px += pinit.Px();
-        Py += pinit.Py();
-        Pz += pinit.Pz();
-        E += pinit.E();
+    // Px += pinit.Px();
+    // Py += pinit.Py();
+    // Pz += pinit.Pz();
+    // E += pinit.E();
+    Px=0;
+    Py=0;
+    Pz=791.073;
+    E=2973.88;
+
 
         for (int q = 0; q < 2; q++)
         {
-            E+=y(2+q*cov_dim,0)+mp;
+            E-=y(2+q*cov_dim,0)+mp;
 
-        	P=sqrt(pow(y(2+q*cov_dim,0)+mp+mp,2)-mp*mp);
+        	// P=sqrt(pow(y(2+q*cov_dim,0)+mp+mp,2)-mp*mp);
+        	P=sqrt(pow(E+mp,2)-mp*mp);
         	Px-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*cos(y(0+q*cov_dim,0)*Deg2Rad);
 			Py-=P*sin(y(1+q*cov_dim,0)*Deg2Rad)*sin(y(0+q*cov_dim,0)*Deg2Rad);
 			Pz-=P*cos(y(1+q*cov_dim,0)*Deg2Rad);
@@ -176,8 +181,8 @@ TMatrixD Feta_eval()
 
         for (int q = 0; q < 2; q++)
         {
-            double Pi = sqrt(pow(y(2+q*cov_dim,0)+mp+mp,2)-mp*mp);
-            double Ei = std::sqrt(Pi * Pi + mp * mp);
+            double Pi = sqrt(pow(y(2+q*cov_dim,0)+mp,2)-mp*mp);
+            double Ei = sqrt(Pi * Pi + mp * mp);
             H(0, 0 + q * cov_dim) =
                 2 * E * (std::pow(Pi, 3) / Ei) -
                 2 * std::pow(Pi, 2) * std::sin(y(1 + q * cov_dim, 0)) *
@@ -372,15 +377,15 @@ int GenEv_refit(){
 	clock_t fend;
 	fbegin = clock(); //Start clock
 
-TVector3 help;
-help.SetMagThetaPhi(sqrt((160*160)+2*1875.612*160), 0*Pi_180, 0*Pi_180);
+// TVector3 help;
+// help.SetMagThetaPhi(sqrt((160*160)+2*1875.612*160), 0*Pi_180, 0*Pi_180);
 // TLorentzVector pinit(help, 1875.612+160.);
 // TLorentzVector LVmp(0,0,0,mp);
 // pinit+=LVmp;
+	TLorentzVector pinit(0,0,791.073,2973.88);
 
 // cout<<"help px: "<<help.Px()<<"help py: "<<help.Py()<<"help pz: "<<help.Pz()<<endl;
-cout<<"pinit px: "<<pinit.Px()<<"pinit py: "<<pinit.Py()<<"pinit pz: "<<pinit.Pz()<<"pinit E: "<<pinit.E()<<endl;
-// return 0;
+// cout<<"pinit px: "<<pinit.Px()<<"pinit py: "<<pinit.Py()<<"pinit pz: "<<pinit.Pz()<<"pinit E: "<<pinit.E()<<endl;
 
 
 // 	 TLorentzVector proj1, targ1, beam1;
@@ -612,7 +617,7 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 
 	// for(ULong64_t i=0;i<entries;i++){
-	for(ULong64_t i=0;i<300000;i++){
+	for(ULong64_t i=0;i<100000;i++){
 
 		Counting(i);
 		tree_old->GetEntry(i);
@@ -633,7 +638,7 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 		//cyliczne warunki na Th (raczej hipotetyczne)
 
 		if(Th1_sm<0) {Th1_sm=abs(Th1_sm); Phi1_sm+=180;};
-    if(Th2_sm<0) {Th2_sm=abs(Th2_sm); Phi2_sm+=180;};
+    	if(Th2_sm<0) {Th2_sm=abs(Th2_sm); Phi2_sm+=180;};
 		if(Th3_sm<0) {Th3_sm=abs(Th3_sm); Phi3_sm+=180;};
 
 		if(Th1_sm>180) {Th1_sm=360-Th1_sm; Phi1_sm-=180;};
@@ -677,10 +682,10 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 
 		SetValues(Phi1_sm, Th1_sm, En1_sm, Phi2_sm, Th2_sm, En2_sm);
-		// SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2);
-		SetCovariance(30.,30.,30.,30.,30.,30.);
-		// f_eval();
-		// Feta_eval();
+		SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2);
+		// SetCovariance(30.,30.,30.,30.,30.,30.);
+		f_eval();
+		Feta_eval();
 		fit();
 		GetFitVal();
 
