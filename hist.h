@@ -62,6 +62,7 @@ public :
    Float_t         Probability;
    Float_t         MissMassProt2Neut;
    Float_t         MissMassProt2NeutPre;
+   Int_t         Converged;
 
    // List of branches
    TBranch        *b_Energy_1;   //!
@@ -104,6 +105,7 @@ public :
    TBranch        *b_Probability;   //!
    TBranch        *b_MissMassProt2Neut;   //!
    TBranch        *b_MissMassProt2NeutPre;   //!
+   TBranch        *b_Converged;
 
    hist(TTree *tree=0);
    virtual ~hist();
@@ -239,6 +241,8 @@ void hist::Init(TTree *tree)
    fChain->SetBranchAddress("Th2_sm",&Theta_2_sm);
    fChain->SetBranchAddress("Phi2_sm",&Phi_2_sm);
    fChain->SetBranchAddress("En2_sm",&Energy_2_sm);
+
+   fChain->SetBranchAddress("Converged",&Converged);
 
    Notify();
 }
