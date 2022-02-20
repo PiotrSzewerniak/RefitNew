@@ -37,6 +37,7 @@ Int_t fNdf = 5; // 4+NumberOfConstraints
 const TLorentzVector pinit(0.,0.,791.073,2973.88);
 Float_t fChi2, fProb;
 Int_t glob_event = 0.;
+Int_t f_nan = 0;
 
 void Counting(ULong64_t ent){
 	if(ent%10000==0)
@@ -194,26 +195,46 @@ TMatrixD Feta_eval(TMatrixD y)
         {
             double Pi = sqrt(pow(y(2+q*cov_dim,0)+mp,2)-mp*mp);
             double Ei = sqrt(Pi * Pi + mp * mp);
-            H(0, 0 + q * cov_dim) =
-                2 * E * (std::pow(Pi, 3) / Ei) -
-                2 * std::pow(Pi, 2) * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::cos(y(0 + q * cov_dim, 0)) * Px -
-                2 * std::pow(Pi, 2) * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::sin(y(0 + q * cov_dim, 0)) * Py -
-                2 * std::pow(Pi, 2) * std::cos(y(1 + q * cov_dim, 0)) * Pz;
+
+            // H(0, 2 + q * cov_dim) =
+            //     2 * E * (Pi / Ei) -
+            //     2 * std::sin(y(1 + q * cov_dim, 0)*Deg2Rad) *
+            //         std::cos(y(0 + q * cov_dim, 0)*Deg2Rad) * Px -
+            //     2 * std::sin(y(1 + q * cov_dim, 0)*Deg2Rad) *
+            //         std::sin(y(0 + q * cov_dim, 0)*Deg2Rad) * Py +
+            //     2 * std::cos(y(1 + q * cov_dim, 0)*Deg2Rad) * Pz;
+
+            // H(0, 1 + q * cov_dim) =
+            //     2 * Pi * std::cos(y(1 + q * cov_dim, 0)*Deg2Rad) *
+            //         std::cos(y(0 + q * cov_dim, 0)*Deg2Rad) * Px +
+            //     2 * Pi * std::cos(y(1 + q * cov_dim, 0)*Deg2Rad) *
+            //         std::sin(y(0 + q * cov_dim, 0)*Deg2Rad) * Py -
+            //     2 * Pi * std::sin(y(1 + q * cov_dim, 0)*Deg2Rad) * Pz;
+
+            // H(0, 0 + q * cov_dim) =
+            //     -2 * Pi * std::sin(y(1 + q * cov_dim, 0)*Deg2Rad) *
+            //         std::sin(y(0 + q * cov_dim, 0)*Deg2Rad) * Px +
+            //     2 * Pi * std::sin(y(1 + q * cov_dim, 0)*Deg2Rad) *
+            //         std::cos(y(0 + q * cov_dim, 0)*Deg2Rad) * Py;
+
+            H(0, 2 + q * cov_dim) = 
+            	(-2 * Pi * E) / Ei -
+            	2 * std::sin(y(1 + q * cov_dim, 0) * Deg2Rad) * std::cos(y(0 + 1 * cov_dim, 0)*Deg2Rad) * Px -
+            	2 * std::sin(y(1 + q * cov_dim, 0) * Deg2Rad) * std::sin(y(0 + 1 * cov_dim, 0)*Deg2Rad) * Py +
+            	2 * std::cos(y(1 + q * cov_dim, 0) * Deg2Rad) * Pz;
 
             H(0, 1 + q * cov_dim) =
-                2 * Pi * std::cos(y(1 + q * cov_dim, 0)) *
-                    std::cos(y(0 + q * cov_dim, 0)) * Px +
-                2 * Pi * std::cos(y(1 + q * cov_dim, 0)) *
-                    std::sin(y(0 + q * cov_dim, 0)) * Py -
-                2 * Pi * std::sin(y(1 + q * cov_dim, 0)) * Pz;
+            	0 -
+            	Pi * std::cos(y(1 + q * cov_dim, 0) * Deg2Rad) * std::cos(y(0 + q * cov_dim, 0) * Deg2Rad) -
+            	Pi * std::cos(y(1 + q * cov_dim, 0) * Deg2Rad) * std::sin(y(0 + q * cov_dim, 0) * Deg2Rad) -
+            	Pi * std::sin(y(1 + q * cov_dim, 0) * Deg2Rad);
 
-            H(0, 2 + q * cov_dim) =
-                -2 * Pi * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::sin(y(0 + q * cov_dim, 0)) * Px +
-                2 * Pi * std::sin(y(1 + q * cov_dim, 0)) *
-                    std::cos(y(0 + q * cov_dim, 0)) * Py;
+            H(0, 0 + q * cov_dim) =
+            	0 +
+            	Pi * std::sin(y(1 + q * cov_dim, 0) * Deg2Rad) * std::sin(y(0 + q * cov_dim, 0) * Deg2Rad) -
+            	Pi * std::sin(y(1 + q * cov_dim, 0) * Deg2Rad) * std::cos(y(0 + q * cov_dim, 0) * Deg2Rad) -
+            	0;
+
         }
     
     	// cout<<"Feta eval "<<H(0,0)<<" "<<H(0,1)<<" "<<H(0,2)<<endl;
@@ -224,21 +245,16 @@ TMatrixD Feta_eval(TMatrixD y)
 
 Int_t fit()
 {
-	// TMatrixD D = Feta_eval();
- //    TMatrixD d = f_eval();
-    double lr = 0.5;
-    Int_t cov_dim = 3;
-    Int_t fN = 2;
+	double lr = 0.5;
     TMatrixD alpha0(fN * cov_dim, 1), alpha(fN * cov_dim, 1);
-    TMatrixD A0(ytemp), V0(V);
-    alpha0 = ytemp;
+    TMatrixD A0(y), V0(V);
+    alpha0 = y;
     alpha = alpha0;
-    double chi2 = 99999;
+    double chi2 = 1e6;
     TMatrixD D = Feta_eval(alpha);
     TMatrixD d = f_eval(alpha);
-    Int_t q = 0;
-    Int_t fConverged = 0;
-    for (q = 0; q < 200; q++)
+
+    for (int q = 0; q < 5; q++)
     {
         TMatrixD DT(D.GetNcols(), D.GetNrows());
         DT.Transpose(D);
@@ -246,7 +262,6 @@ Int_t fit()
         VD.Invert();
 
         TMatrixD delta_alpha = alpha - alpha0;
-        // show(delta_alpha);
         TMatrixD lambda = VD * D * delta_alpha + VD * d;
         TMatrixD lambdaT(lambda.GetNcols(), lambda.GetNrows());
         lambdaT.Transpose(lambda);
@@ -260,35 +275,32 @@ Int_t fit()
             chisqrd = lambdaT(0, p) * d(p, 0);
         }
 
-        //for checking convergence
+        /* for checking convergence
         // three parameters are checked
         // 1. difference between measurements (for successive iterations) y
         // 2. difference between constraints (for successive iterations)  d
         // 3. difference between chi2 (for successive iterations)  chisqrd
         // check converge for 'y' measurements
         double sum0 = 0;
-        for(int p=0; p<(fN*3); p++){
+        for(int p=0; p<(fN*5); p++){
             sum0 += (neu_alpha(p,0)-alpha(p,0))*(neu_alpha(p,0)-alpha(p,0));
         }
-        double d_const = fabs(d(0,0)-mn);
-        // double d_const = 5;
-        if(fabs(chi2-chisqrd)<1 && d_const<10 && sqrt(sum0)<1){
-            // fIteration = q;
-            fConverged = 1;
-            // cout<<"Ev: "<<glob_event<<" q: "<<q<<" chi2-chisqrd = "<<fabs(chi2-chisqrd)<<" d_const: "<<d_const<<" sqrt(sum0): "<<sqrt(sum0)<<endl;
+        double d_const = fabs(d(0,0));
+        if(fabs(chi2-chisqrd)<1e-3 && d_const<10 && sqrt(sum0)<1e-3){
+            fIteration = q;
+            fConverged = true;
             break;
         }
-        
+        */
         chi2 = chisqrd;
         alpha0 = alpha;
         alpha = neu_alpha;
         V = V - lr * V * DT * VD * D * V;
         D = Feta_eval(alpha);
         d = f_eval(alpha);
-        // cout<<"Ev: "<<glob_event<<" q: "<<q<<" Chi2 = "<<chi2<<" "<<" Prob = "<<TMath::Prob(chi2, fNdf)<<endl;
     }
 
-    ytemp = alpha;
+    y = alpha;
     fChi2 = chi2;
     fProb = TMath::Prob(chi2, fNdf);
 
@@ -623,7 +635,7 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 	TH1F *hMM3_f= new TH1F("hMM3_f","Smeared Missing Mass of 3rd part.",100,900,1000);
 
 	TH1F *hChi2=new TH1F("Chi2","Chi2",100,0,30);
-	TH1F *hProbability=new TH1F("Probability","Probability",100,0,10);
+	TH1F *hProbability=new TH1F("Probability","Probability",100,0,2);
 
 	TH1F *Th1_prev=new TH1F("Th1_prev","Th1_prev",200,0,100);
 	TH1F *Phi1_prev=new TH1F("Phi1_prev","Phi1_prev",200,0,200);
@@ -641,7 +653,7 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 
 	// for(ULong64_t i=0;i<entries;i++){
-	for(ULong64_t i=0;i<50000;i++){
+	for(ULong64_t i=0;i<100000;i++){
 		glob_event++;
 		Counting(i);
 		tree_old->GetEntry(i);
@@ -681,7 +693,6 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 
 		Float_t MM1,MM2,MM3,MM1_sm,MM2_sm,MM3_sm,MM1_f,MM2_f,MM3_f;
-
 		// MM1=calc_MM(En2,En3,Th2,Th3,Phi2,Phi3,1);
 		// MM2=calc_MM(En1,En3,Th1,Th3,Phi1,Phi3,1);
 		MM3=calc_MM(En1,En2,Th1,Th2,Phi1,Phi2,0);
@@ -720,6 +731,8 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 		Th2_f = FitVal(4,0);
 		En2_f = FitVal(5,0);
 
+		if(isnan(Th1_f)) f_nan++;
+
 		// MM1_f=calc_MM(En2_f,En3_f,Th2_f,Th3_f,Phi2_f,Phi3_f,1);
 		// MM2_f=calc_MM(En1_f,En3_f,Th1_f,Th3_f,Phi1_f,Phi3_f,1);
 		MM3_f=calc_MM(En1_f,En2_f,Th1_f,Th2_f,Phi1_f,Phi2_f,0);
@@ -755,6 +768,8 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 
 	}
+cout<<endl;
+cout<<"ilosc nan: "<<f_nan<<endl;
 
 f->cd();
 tree->Write();
