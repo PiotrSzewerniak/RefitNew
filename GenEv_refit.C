@@ -33,7 +33,7 @@ TMatrixD V(6,6);
 Float_t mp = 938.272;
 Float_t mn = 939.565;
 Float_t md = 1875.612;
-Int_t fNdf = 5; // 4+NumberOfConstraints
+Int_t fNdf = 1; // 4+NumberOfConstraints
 const TLorentzVector pinit(0.,0.,791.073,2973.88);
 Float_t fChi2, fProb;
 Int_t glob_event = 0.;
@@ -245,16 +245,23 @@ TMatrixD Feta_eval(TMatrixD y)
 
 Int_t fit()
 {
-	double lr = 0.5;
+		// TMatrixD D = Feta_eval();
+ //    TMatrixD d = f_eval();
+    double lr = 0.5;
+    Int_t cov_dim = 3;
+    Int_t fN = 2;
     TMatrixD alpha0(fN * cov_dim, 1), alpha(fN * cov_dim, 1);
-    TMatrixD A0(y), V0(V);
-    alpha0 = y;
+    TMatrixD A0(ytemp), V0(V);
+    alpha0 = ytemp;
     alpha = alpha0;
-    double chi2 = 1e6;
+    // double chi2 = 1e6;
+    double chi2 = 1e8;
     TMatrixD D = Feta_eval(alpha);
     TMatrixD d = f_eval(alpha);
+    Int_t q = 0;
+    Int_t fConverged = 0;
 
-    for (int q = 0; q < 5; q++)
+    for (q = 0; q < 30; q++)
     {
         TMatrixD DT(D.GetNcols(), D.GetNrows());
         DT.Transpose(D);
@@ -262,6 +269,7 @@ Int_t fit()
         VD.Invert();
 
         TMatrixD delta_alpha = alpha - alpha0;
+        // show(delta_alpha);
         TMatrixD lambda = VD * D * delta_alpha + VD * d;
         TMatrixD lambdaT(lambda.GetNcols(), lambda.GetNrows());
         lambdaT.Transpose(lambda);
@@ -275,35 +283,41 @@ Int_t fit()
             chisqrd = lambdaT(0, p) * d(p, 0);
         }
 
-        /* for checking convergence
+        //for checking convergence
         // three parameters are checked
         // 1. difference between measurements (for successive iterations) y
         // 2. difference between constraints (for successive iterations)  d
         // 3. difference between chi2 (for successive iterations)  chisqrd
         // check converge for 'y' measurements
         double sum0 = 0;
-        for(int p=0; p<(fN*5); p++){
+        for(int p=0; p<(fN*3); p++){
             sum0 += (neu_alpha(p,0)-alpha(p,0))*(neu_alpha(p,0)-alpha(p,0));
         }
-        double d_const = fabs(d(0,0));
-        if(fabs(chi2-chisqrd)<1e-3 && d_const<10 && sqrt(sum0)<1e-3){
-            fIteration = q;
-            fConverged = true;
+        // double d_const = fabs(d(0,0)-mn);
+        // double d_const = fabs(d(0,0));
+        // double d_const = 5;
+        // if(fabs(chi2-chisqrd)<1e-3 && d_const<10 && sqrt(sum0)<1e-3){
+        // if(fabs(chi2-chisqrd)<1000000 && d_const<1000000 && sqrt(sum0)<1000000){
+        if(fabs(chi2-chisqrd)<1){
+            // fIteration = q;
+            fConverged = 1;
+            // cout<<"Ev: "<<glob_event<<" q: "<<q<<" chi2-chisqrd = "<<fabs(chi2-chisqrd)<<" d_const: "<<d_const<<" sqrt(sum0): "<<sqrt(sum0)<<endl;
             break;
         }
-        */
+        // cout<<"Ev: "<<glob_event<<" q: "<<q<<" chi2-chisqrd = "<<fabs(chi2-chisqrd)<<" d_const: "<<d_const<<" sqrt(sum0): "<<sqrt(sum0)<<endl;
+        
         chi2 = chisqrd;
         alpha0 = alpha;
         alpha = neu_alpha;
         V = V - lr * V * DT * VD * D * V;
         D = Feta_eval(alpha);
         d = f_eval(alpha);
+        // cout<<"Ev: "<<glob_event<<" q: "<<q<<" Chi2 = "<<chi2<<" "<<" Prob = "<<TMath::Prob(chi2, fNdf)<<endl;
     }
 
-    y = alpha;
+    ytemp = alpha;
     fChi2 = chi2;
     fProb = TMath::Prob(chi2, fNdf);
-
     // cout<<"Ev: "<<glob_event<<" q: "<<q<<" Chi2 = "<<chi2<<" "<<" Prob = "<<TMath::Prob(chi2, fNdf)<<endl;
 
     // -----------------------------------------
@@ -505,26 +519,26 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 	tree_old->SetBranchAddress("mean_En3",&mean_En3);
 
 	TRandom3 *rnd = new TRandom3();
-	mean_Th1=0;
-		sigma_Th1=1;
-	mean_Th2=0;
-		sigma_Th2=1;
-	mean_Th3=0;
-		sigma_Th3=3;
+	// mean_Th1=0;
+	// 	sigma_Th1=1;
+	// mean_Th2=0;
+	// 	sigma_Th2=1;
+	// mean_Th3=0;
+	// 	sigma_Th3=3;
 
-	mean_Phi1=0;
-		sigma_Phi1=1;
-	mean_Phi2=0;
-		sigma_Phi2=1;
-	mean_Phi3=0;
-		sigma_Phi3=3;
+	// mean_Phi1=0;
+	// 	sigma_Phi1=1;
+	// mean_Phi2=0;
+	// 	sigma_Phi2=1;
+	// mean_Phi3=0;
+	// 	sigma_Phi3=3;
 
-	mean_En1=0;
-		sigma_En1=2;
-	mean_En2=0;
-		sigma_En2=2;
-	mean_En3=0;
-		sigma_En3=10;
+	// mean_En1=0;
+	// 	sigma_En1=2;
+	// mean_En2=0;
+	// 	sigma_En2=2;
+	// mean_En3=0;
+	// 	sigma_En3=10;
 
 	pTyp1=1;
 	pTyp2=1;
@@ -630,12 +644,12 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 	treef->Branch("Converged",&Converged,"Converged/I");
 
-	TH1F *hMM1_f= new TH1F("hMM1_f","Smeared Missing Mass of 1st part.",100,900,1000);
-	TH1F *hMM2_f= new TH1F("hMM2_f","Smeared Missing Mass of 2nd part.",100,900,1000);
-	TH1F *hMM3_f= new TH1F("hMM3_f","Smeared Missing Mass of 3rd part.",100,900,1000);
+	TH1F *hMM1_f= new TH1F("hMM1_f","Smeared Missing Mass of 1st part.",200,920,955);
+	TH1F *hMM2_f= new TH1F("hMM2_f","Smeared Missing Mass of 2nd part.",200,920,955);
+	TH1F *hMM3_f= new TH1F("hMM3_f","Smeared Missing Mass of 3rd part.",200,920,955);
 
-	TH1F *hChi2=new TH1F("Chi2","Chi2",100,0,30);
-	TH1F *hProbability=new TH1F("Probability","Probability",100,0,2);
+	TH1F *hChi2=new TH1F("Chi2","Chi2",200,0,15);
+	TH1F *hProbability=new TH1F("Probability","Probability",100,0,1);
 
 	TH1F *Th1_prev=new TH1F("Th1_prev","Th1_prev",200,0,100);
 	TH1F *Phi1_prev=new TH1F("Phi1_prev","Phi1_prev",200,0,200);
@@ -659,17 +673,17 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 		tree_old->GetEntry(i);
 		fChi2=0;
 		fProb=0;
-		Th1_sm=Th1+rnd->Gaus(mean_Th1,sigma_Th1);
-		Th2_sm=Th2+rnd->Gaus(mean_Th2,sigma_Th2);
-		Th3_sm=Th3+rnd->Gaus(mean_Th3,sigma_Th3);
+		// Th1_sm=Th1+rnd->Gaus(mean_Th1,sigma_Th1);
+		// Th2_sm=Th2+rnd->Gaus(mean_Th2,sigma_Th2);
+		// Th3_sm=Th3+rnd->Gaus(mean_Th3,sigma_Th3);
 
-		Phi1_sm=Phi1+rnd->Gaus(mean_Phi1,sigma_Phi1);
-		Phi2_sm=Phi2+rnd->Gaus(mean_Phi2,sigma_Phi2);
-		Phi3_sm=Phi3+rnd->Gaus(mean_Phi3,sigma_Phi3);
+		// Phi1_sm=Phi1+rnd->Gaus(mean_Phi1,sigma_Phi1);
+		// Phi2_sm=Phi2+rnd->Gaus(mean_Phi2,sigma_Phi2);
+		// Phi3_sm=Phi3+rnd->Gaus(mean_Phi3,sigma_Phi3);
 
-		En1_sm=En1+rnd->Gaus(mean_En1,sigma_En1);
-		En2_sm=En2+rnd->Gaus(mean_En2,sigma_En2);
-		En3_sm=En3+rnd->Gaus(mean_En3,sigma_En3);
+		// En1_sm=En1+rnd->Gaus(mean_En1,sigma_En1);
+		// En2_sm=En2+rnd->Gaus(mean_En2,sigma_En2);
+		// En3_sm=En3+rnd->Gaus(mean_En3,sigma_En3);
 
 		//cyliczne warunki na Th (raczej hipotetyczne)
 
