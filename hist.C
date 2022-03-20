@@ -16,41 +16,41 @@ void hist::Loop()
    TH1F* prob = new TH1F("prob","prob",200,0,1);
 
 
-   TH1F* Res_spec_En1 = new TH1F("Res_spec_En1","Res_spec_En1",200,-50,50);
-   TH1F* Res_spec_En2 = new TH1F("Res_spec_En2","Res_spec_En2",200,-50,50);
-   TH1F* Res_spec_En3 = new TH1F("Res_spec_En3","Res_spec_En3",200,-45,45);
+   TH1F* Res_spec_En1 = new TH1F("Res_spec_En1","Res_spec_En1",200,-30,30);
+   TH1F* Res_spec_En2 = new TH1F("Res_spec_En2","Res_spec_En2",200,-30,30);
+   // TH1F* Res_spec_En3 = new TH1F("Res_spec_En3","Res_spec_En3",200,-45,45);
 
-   TH1F* QA_Res_En1 = new TH1F("QA_Res_En1","QA_Res_En1",200,-50,50);
-   TH1F* QA_Res_En2 = new TH1F("QA_Res_En2","QA_Res_En2",200,-50,50);
-   TH1F* QA_Res_En3 = new TH1F("QA_Res_En3","QA_Res_En3",200,-120,120);
+   TH1F* QA_Res_En1 = new TH1F("QA_Res_En1","QA_Res_En1",200,-30,30);
+   TH1F* QA_Res_En2 = new TH1F("QA_Res_En2","QA_Res_En2",200,-30,30);
+   // TH1F* QA_Res_En3 = new TH1F("QA_Res_En3","QA_Res_En3",200,-120,120);
 
-   TH1F* Res_spec_Th1 = new TH1F("Res_spec_Th1","Res_spec_Th1",200,-20,20);
-   TH1F* Res_spec_Th2 = new TH1F("Res_spec_Th2","Res_spec_Th2",200,-20,20);
-   TH1F* Res_spec_Th3 = new TH1F("Res_spec_Th3","Res_spec_Th3",200,-15,15);
+   TH1F* Res_spec_Th1 = new TH1F("Res_spec_Th1","Res_spec_Th1",200,-5,5);
+   TH1F* Res_spec_Th2 = new TH1F("Res_spec_Th2","Res_spec_Th2",200,-5,5);
+   // TH1F* Res_spec_Th3 = new TH1F("Res_spec_Th3","Res_spec_Th3",200,-15,15);
 
-   TH1F* QA_Res_Th1 = new TH1F("QA_Res_Th1","QA_Res_Th1",200,-20,20);
-   TH1F* QA_Res_Th2 = new TH1F("QA_Res_Th2","QA_Res_Th2",200,-20,20);
-   TH1F* QA_Res_Th3 = new TH1F("QA_Res_Th3","QA_Res_Th3",200,-50,50);
+   TH1F* QA_Res_Th1 = new TH1F("QA_Res_Th1","QA_Res_Th1",200,-5,5);
+   TH1F* QA_Res_Th2 = new TH1F("QA_Res_Th2","QA_Res_Th2",200,-5,5);
+   // TH1F* QA_Res_Th3 = new TH1F("QA_Res_Th3","QA_Res_Th3",200,-50,50);
 
-   TH1F* Res_spec_Ph1 = new TH1F("Res_spec_Ph1","Res_spec_Ph1",200,-20,20);
-   TH1F* Res_spec_Ph2 = new TH1F("Res_spec_Ph2","Res_spec_Ph2",200,-20,20);
-   TH1F* Res_spec_Ph3 = new TH1F("Res_spec_Ph3","Res_spec_Ph3",200,-15,15);
+   TH1F* Res_spec_Ph1 = new TH1F("Res_spec_Ph1","Res_spec_Ph1",200,-5,5);
+   TH1F* Res_spec_Ph2 = new TH1F("Res_spec_Ph2","Res_spec_Ph2",200,-5,5);
+   // TH1F* Res_spec_Ph3 = new TH1F("Res_spec_Ph3","Res_spec_Ph3",200,-15,15);
 
-   TH1F* QA_Res_Ph1 = new TH1F("QA_Res_Ph1","QA_Res_Ph1",200,-20,20);
-   TH1F* QA_Res_Ph2 = new TH1F("QA_Res_Ph2","QA_Res_Ph2",200,-20,20);
-   TH1F* QA_Res_Ph3 = new TH1F("QA_Res_Ph3","QA_Res_Ph3",200,-40,40);
+   TH1F* QA_Res_Ph1 = new TH1F("QA_Res_Ph1","QA_Res_Ph1",200,-5,5);
+   TH1F* QA_Res_Ph2 = new TH1F("QA_Res_Ph2","QA_Res_Ph2",200,-5,5);
+   // TH1F* QA_Res_Ph3 = new TH1F("QA_Res_Ph3","QA_Res_Ph3",200,-40,40);
    
-   TH1F* Pull_spec_En1 = new TH1F("Pull_spec_En1","Pull_spec_En1",200,-30,30);
-   TH1F* Pull_spec_En2 = new TH1F("Pull_spec_En2","Pull_spec_En2",200,-30,30);
-   TH1F* Pull_spec_En3 = new TH1F("Pull_spec_En3","Pull_spec_En3",200,-30,30);
+   TH1F* Pull_spec_En1 = new TH1F("Pull_spec_En1","Pull_spec_En1",200,-2,2);
+   TH1F* Pull_spec_En2 = new TH1F("Pull_spec_En2","Pull_spec_En2",200,-2,2);
+   // TH1F* Pull_spec_En3 = new TH1F("Pull_spec_En3","Pull_spec_En3",200,-30,30);
 
-   TH1F* Pull_spec_Th1 = new TH1F("Pull_spec_Th1","Pull_spec_Th1",200,-30,30);
-   TH1F* Pull_spec_Th2 = new TH1F("Pull_spec_Th2","Pull_spec_Th2",200,-30,30);
-   TH1F* Pull_spec_Th3 = new TH1F("Pull_spec_Th3","Pull_spec_Th3",200,-30,30);
+   TH1F* Pull_spec_Th1 = new TH1F("Pull_spec_Th1","Pull_spec_Th1",200,-2,2);
+   TH1F* Pull_spec_Th2 = new TH1F("Pull_spec_Th2","Pull_spec_Th2",200,-2,2);
+   // TH1F* Pull_spec_Th3 = new TH1F("Pull_spec_Th3","Pull_spec_Th3",200,-30,30);
 
-   TH1F* Pull_spec_Ph1 = new TH1F("Pull_spec_Ph1","Pull_spec_Ph1",200,-30,30);
-   TH1F* Pull_spec_Ph2 = new TH1F("Pull_spec_Ph2","Pull_spec_Ph2",200,-30,30);
-   TH1F* Pull_spec_Ph3 = new TH1F("Pull_spec_Ph3","Pull_spec_Ph3",200,-30,30);
+   TH1F* Pull_spec_Ph1 = new TH1F("Pull_spec_Ph1","Pull_spec_Ph1",200,-2,2);
+   TH1F* Pull_spec_Ph2 = new TH1F("Pull_spec_Ph2","Pull_spec_Ph2",200,-2,2);
+   // TH1F* Pull_spec_Ph3 = new TH1F("Pull_spec_Ph3","Pull_spec_Ph3",200,-30,30);
 
    TH1F* MMProt2Neut = new TH1F("MMProt2Neut","MMProt2Neut",200,900,942);
    TH1F* MMProt2NeutPre = new TH1F("MMProt2NeutPre","MMProt2NeutPre",200,900,1000);
@@ -62,9 +62,13 @@ void hist::Loop()
 
    TH1F* hConverged = new TH1F("hConverged","hConverged",200,-10,10);
 
-   Float_t sigma_En1, sigma_En2, sigma_En3;
-   Float_t sigma_Th1, sigma_Th2, sigma_Th3;
-   Float_t sigma_Ph1, sigma_Ph2, sigma_Ph3;
+   // Float_t sigma_En1, sigma_En2, sigma_En3;
+   // Float_t sigma_Th1, sigma_Th2, sigma_Th3;
+   // Float_t sigma_Ph1, sigma_Ph2, sigma_Ph3;
+
+   Float_t sigma_En1, sigma_En2;
+   Float_t sigma_Th1, sigma_Th2;
+   Float_t sigma_Ph1, sigma_Ph2;
 
    if (fChain == 0) return;
 
@@ -79,15 +83,16 @@ void hist::Loop()
       // if (Converged==0) continue;
       
       nb = fChain->GetEntry(jentry);   nbytes += nb;
-      if (Converged==1){
-      cout<<Theta_1<<" "<<Energy_1<<" "<<Phi_1<<" "<<Converged<<endl;
+      if(Converged==1)
+      {
+      // cout<<Theta_1<<" "<<Energy_1<<" "<<Phi_1<<" "<<Converged<<endl;
       // chi2->Fill(Chi2);
       // prob->Fill(Probability);
       // prob->Fill(TMath::Prob(Chi2,4));
 
       Res_spec_En1->Fill(Energy_1_sm-Energy_1);
       Res_spec_En2->Fill(Energy_2_sm-Energy_2);
-      Res_spec_En3->Fill(Energy_3_sm-Energy_3);
+      // Res_spec_En3->Fill(Energy_3_sm-Energy_3);
 
       // QA_Res_En1->Fill(Energy_1_sm-Energy_1_inp);
       // QA_Res_En2->Fill(Energy_2_sm-Energy_2_inp);
@@ -95,23 +100,23 @@ void hist::Loop()
 
       QA_Res_En1->Fill(Energy_1_inp-Energy_1_sm);
       QA_Res_En2->Fill(Energy_2_inp-Energy_2_sm);
-      QA_Res_En3->Fill(Energy_3_inp-Energy_3_sm);
+      // QA_Res_En3->Fill(Energy_3_inp-Energy_3_sm);
       
       Res_spec_Th1->Fill(Theta_1_sm-Theta_1);
       Res_spec_Th2->Fill(Theta_2_sm-Theta_2);
-      Res_spec_Th3->Fill(Theta_3_sm-Theta_3);
+      // Res_spec_Th3->Fill(Theta_3_sm-Theta_3);
 
       QA_Res_Th1->Fill(Theta_1_sm-Theta_1_inp);
       QA_Res_Th2->Fill(Theta_2_sm-Theta_2_inp);
-      QA_Res_Th3->Fill(Theta_3_sm-Theta_3_inp);
+      // QA_Res_Th3->Fill(Theta_3_sm-Theta_3_inp);
 
       Res_spec_Ph1->Fill(Phi_1_sm-Phi_1);
       Res_spec_Ph2->Fill(Phi_2_sm-Phi_2);
-      Res_spec_Ph3->Fill(Phi_3_sm-Phi_3);
+      // Res_spec_Ph3->Fill(Phi_3_sm-Phi_3);
 
       QA_Res_Ph1->Fill(Phi_1_sm-Phi_1_inp);
       QA_Res_Ph2->Fill(Phi_2_sm-Phi_2_inp);
-      QA_Res_Ph3->Fill(Phi_3_sm-Phi_3_inp);
+      // QA_Res_Ph3->Fill(Phi_3_sm-Phi_3_inp);
 
       MMProt2Neut->Fill(MissMassProt2Neut);
       MMProt2NeutPre->Fill(MissMassProt2NeutPre);
@@ -126,15 +131,15 @@ void hist::Loop()
 
    sigma_En1=Res_spec_En1->GetStdDev(1);
    sigma_En2=Res_spec_En2->GetStdDev(1);
-   sigma_En3=Res_spec_En3->GetStdDev(1);
+   // sigma_En3=Res_spec_En3->GetStdDev(1);
 
    sigma_Th1=Res_spec_Th1->GetStdDev(1);
    sigma_Th2=Res_spec_Th2->GetStdDev(1);
-   sigma_Th3=Res_spec_Th3->GetStdDev(1);
+   // sigma_Th3=Res_spec_Th3->GetStdDev(1);
 
    sigma_Ph1=Res_spec_Ph1->GetStdDev(1);
    sigma_Ph2=Res_spec_Ph2->GetStdDev(1);
-   sigma_Ph3=Res_spec_Ph3->GetStdDev(1);
+   // sigma_Ph3=Res_spec_Ph3->GetStdDev(1);
 
    for (Long64_t jentry=0; jentry<nentries;jentry++)
    {
@@ -145,18 +150,18 @@ void hist::Loop()
 
       // cout<<Theta_1<<" "<<Energy_1<<" "<<Phi_1<<endl;
 
-      Pull_spec_En1->Fill((Energy_1_sm*1000-Energy_1*1000)/sigma_En1);
-      Pull_spec_En2->Fill((Energy_2_sm*1000-Energy_2*1000)/sigma_En2);
-      Pull_spec_En3->Fill((Energy_3_sm*1000-Energy_3*1000)/sigma_En3);
+      // Pull_spec_En1->Fill((Energy_1_sm*1000-Energy_1*1000)/sigma_En1);
+      Pull_spec_En1->Fill((Energy_1_sm-Energy_1)/sigma_En1);
+      Pull_spec_En2->Fill((Energy_2_sm-Energy_2)/sigma_En2);
+      // Pull_spec_En3->Fill((Energy_3_sm*1000-Energy_3*1000)/sigma_En3);
 
-      Pull_spec_Th1->Fill((Theta_1_sm*Rad2Deg-Theta_1*Rad2Deg)/sigma_Th1);
-      Pull_spec_Th2->Fill((Theta_2_sm*Rad2Deg-Theta_2*Rad2Deg)/sigma_Th2);
-      Pull_spec_Th3->Fill((Theta_3_sm*Rad2Deg-Theta_3*Rad2Deg)/sigma_Th3);
+      Pull_spec_Th1->Fill((Theta_1_sm-Theta_1)/sigma_Th1);
+      Pull_spec_Th2->Fill((Theta_2_sm-Theta_2)/sigma_Th2);
+      // Pull_spec_Th3->Fill((Theta_3_sm*Rad2Deg-Theta_3*Rad2Deg)/sigma_Th3);
 
-      Pull_spec_Ph1->Fill((Phi_1_sm*Rad2Deg-Phi_1*Rad2Deg)/sigma_Ph1);
-      Pull_spec_Ph2->Fill((Phi_2_sm*Rad2Deg-Phi_2*Rad2Deg)/sigma_Ph2);
-      Pull_spec_Ph3->Fill((Phi_3_sm*Rad2Deg-Phi_3*Rad2Deg)/sigma_Ph3);
-
+      Pull_spec_Ph1->Fill((Phi_1_sm-Phi_1)/sigma_Ph1);
+      Pull_spec_Ph2->Fill((Phi_2_sm-Phi_2)/sigma_Ph2);
+      // Pull_spec_Ph3->Fill((Phi_3_sm*Rad2Deg-Phi_3*Rad2Deg)/sigma_Ph3);
    }
 
    // Pull_spec_En1=Res_spec_En1;
@@ -193,39 +198,39 @@ void hist::Loop()
 
    Res_spec_En1->Write();
    Res_spec_En2->Write();
-   Res_spec_En3->Write();
+   // Res_spec_En3->Write();
 
    QA_Res_En1->Write();
    QA_Res_En2->Write();
-   QA_Res_En3->Write();
+   // QA_Res_En3->Write();
 
    Res_spec_Th1->Write();
    Res_spec_Th2->Write();
-   Res_spec_Th3->Write();
+   // Res_spec_Th3->Write();
 
    QA_Res_Th1->Write();
    QA_Res_Th2->Write();
-   QA_Res_Th3->Write();
+   // QA_Res_Th3->Write();
 
    Res_spec_Ph1->Write();
    Res_spec_Ph2->Write();
-   Res_spec_Ph3->Write();
+   // Res_spec_Ph3->Write();
 
    QA_Res_Ph1->Write();
    QA_Res_Ph2->Write();
-   QA_Res_Ph3->Write();
+   // QA_Res_Ph3->Write();
 
    Pull_spec_En1->Write();
    Pull_spec_En2->Write();
-   Pull_spec_En3->Write();
+   // Pull_spec_En3->Write();
 
    Pull_spec_Th1->Write();
    Pull_spec_Th2->Write();
-   Pull_spec_Th3->Write();
+   // Pull_spec_Th3->Write();
 
    Pull_spec_Ph1->Write();
    Pull_spec_Ph2->Write();
-   Pull_spec_Ph3->Write();
+   // Pull_spec_Ph3->Write();
 
    // MMProt2Neut->Write();
    // MMProt2NeutPre->Write();
@@ -238,82 +243,82 @@ void hist::Loop()
    hConverged->Write();
 
    TCanvas *Residuals = new TCanvas("Residuals","Residuals",2000,2000);
-   Residuals->Divide(3,3);
+   Residuals->Divide(3,2);
    TCanvas *QA_res = new TCanvas("QA_res","QA_res",2000,2000);
-   QA_res->Divide(3,3);
+   QA_res->Divide(3,2);
    TCanvas *Pull = new TCanvas("Pull","Pull",2000,2000);
-   Pull->Divide(3,3);
+   Pull->Divide(3,2);
    // TCanvas *Various = new TCanvas("Various","Various",1000,1000);
    // Various->Divide(2,2);
 
    Residuals->cd(1);
    Res_spec_En1->Draw();
-   Residuals->cd(2);
-   Res_spec_En2->Draw();
-   Residuals->cd(3);
-   Res_spec_En3->Draw();
-
    Residuals->cd(4);
+   Res_spec_En2->Draw();
+   // Residuals->cd(3);
+   // Res_spec_En3->Draw();
+
+   Residuals->cd(2);
    Res_spec_Th1->Draw();
    Residuals->cd(5);
    Res_spec_Th2->Draw();
-   Residuals->cd(6);
-   Res_spec_Th3->Draw();
+   // Residuals->cd(6);
+   // Res_spec_Th3->Draw();
 
-   Residuals->cd(7);
+   Residuals->cd(3);
    Res_spec_Ph1->Draw();
-   Residuals->cd(8);
+   Residuals->cd(6);
    Res_spec_Ph2->Draw();
-   Residuals->cd(9);
-   Res_spec_Ph3->Draw();
+   // Residuals->cd(9);
+   // Res_spec_Ph3->Draw();
 
    Residuals->Write();
    Residuals->SaveAs("Residuals.png");
 
    QA_res->cd(1);
    QA_Res_En1->Draw();
-   QA_res->cd(2);
-   QA_Res_En2->Draw();
-   QA_res->cd(3);
-   QA_Res_En3->Draw();
-
    QA_res->cd(4);
+   QA_Res_En2->Draw();
+   // QA_res->cd(3);
+   // QA_Res_En3->Draw();
+
+   QA_res->cd(2);
    QA_Res_Th1->Draw();
    QA_res->cd(5);
    QA_Res_Th2->Draw();
-   QA_res->cd(6);
-   QA_Res_Th3->Draw();
+   // QA_res->cd(6);
+   // QA_Res_Th3->Draw();
 
-   QA_res->cd(7);
+   QA_res->cd(3);
    QA_Res_Ph1->Draw();
-   QA_res->cd(8);
+   QA_res->cd(6);
    QA_Res_Ph2->Draw();
-   QA_res->cd(9);
-   QA_Res_Ph3->Draw();
+   // QA_res->cd(9);
+   // QA_Res_Ph3->Draw();
 
    QA_res->Write();
    QA_res->SaveAs("QA_res.png");
 
    Pull->cd(1);
    Pull_spec_En1->Draw();
-   Pull->cd(2);
-   Pull_spec_En2->Draw();
-   Pull->cd(3);
-   Pull_spec_En3->Draw();
-
    Pull->cd(4);
+   Pull_spec_En2->Draw();
+   // Pull->cd(3);
+   // Pull_spec_En3->Draw();
+
+   Pull->cd(2);
    Pull_spec_Th1->Draw();
    Pull->cd(5);
    Pull_spec_Th2->Draw();
-   Pull->cd(6);
-   Pull_spec_Th3->Draw();
+   // Pull->cd(6);
+   // Pull_spec_Th3->Draw();
 
-   Pull->cd(7);
+   Pull->cd(3);
    Pull_spec_Ph1->Draw();
-   Pull->cd(8);
+   Pull->cd(6);
    Pull_spec_Ph2->Draw();
-   Pull->cd(9);
-   Pull_spec_Ph3->Draw();
+   // Pull->cd(9);
+   // Pull_spec_Ph3->Draw();
 
    Pull->Write();
    Pull->SaveAs("Pull.png");

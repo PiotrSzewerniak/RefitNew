@@ -28,6 +28,8 @@ TCanvas *Various = new TCanvas("Various","Various",1000,1000);
 // y.Zero();
 // V.Zero();
 
+Int_t cov_dim = 3;
+Int_t fN = 2;
 TMatrixD ytemp(6,1);
 TMatrixD V(6,6);
 Float_t mp = 938.272;
@@ -123,7 +125,6 @@ void SetCovariance(Float_t phi1_er, Float_t th1_er, Float_t en1_er, Float_t phi2
 
 TMatrixD f_eval(TMatrixD y)
 {
-	Int_t cov_dim = 3;
 	TMatrixD d;
     d.ResizeTo(1, 1);
     Float_t P, Px, Py, Pz, E;
@@ -167,7 +168,6 @@ TMatrixD Feta_eval(TMatrixD y)
 	TMatrixD H;
     H.ResizeTo(1, 6);
     H.Zero();
-    Int_t cov_dim=3;
     Float_t P, Px, Py, Pz, E;
 
     // Px += pinit.Px();
@@ -248,20 +248,18 @@ Int_t fit()
 		// TMatrixD D = Feta_eval();
  //    TMatrixD d = f_eval();
     double lr = 0.5;
-    Int_t cov_dim = 3;
-    Int_t fN = 2;
     TMatrixD alpha0(fN * cov_dim, 1), alpha(fN * cov_dim, 1);
     TMatrixD A0(ytemp), V0(V);
     alpha0 = ytemp;
     alpha = alpha0;
-    // double chi2 = 1e6;
-    double chi2 = 1e8;
+    double chi2 = 1e6;
+    // double chi2 = 1;
     TMatrixD D = Feta_eval(alpha);
     TMatrixD d = f_eval(alpha);
     Int_t q = 0;
     Int_t fConverged = 0;
 
-    for (q = 0; q < 30; q++)
+    for (q = 0; q < 20; q++)
     {
         TMatrixD DT(D.GetNcols(), D.GetNrows());
         DT.Transpose(D);
@@ -350,8 +348,6 @@ TMatrixD GetFitVal(TMatrixD y)
 	TLorentzVector *v;
 	v = new TLorentzVector(0,0,0,0);
 	y_fit.ResizeTo(6,1);
-	Int_t cov_dim = 3;
-	Int_t fN = 2;
 	Float_t E = 0., P = 0., Px = 0., Py = 0., Pz = 0.;
 	for(int val = 0; val < fN; val++)
 	{
@@ -671,8 +667,8 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 		glob_event++;
 		Counting(i);
 		tree_old->GetEntry(i);
-		fChi2=0;
-		fProb=0;
+		// fChi2=0;
+		// fProb=0;
 		// Th1_sm=Th1+rnd->Gaus(mean_Th1,sigma_Th1);
 		// Th2_sm=Th2+rnd->Gaus(mean_Th2,sigma_Th2);
 		// Th3_sm=Th3+rnd->Gaus(mean_Th3,sigma_Th3);
@@ -687,23 +683,23 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 		//cyliczne warunki na Th (raczej hipotetyczne)
 
-		if(Th1_sm<0) {Th1_sm=abs(Th1_sm); Phi1_sm+=180;};
-    	if(Th2_sm<0) {Th2_sm=abs(Th2_sm); Phi2_sm+=180;};
-		if(Th3_sm<0) {Th3_sm=abs(Th3_sm); Phi3_sm+=180;};
+		// if(Th1_sm<0) {Th1_sm=abs(Th1_sm); Phi1_sm+=180;};
+  //   	if(Th2_sm<0) {Th2_sm=abs(Th2_sm); Phi2_sm+=180;};
+		// if(Th3_sm<0) {Th3_sm=abs(Th3_sm); Phi3_sm+=180;};
 
-		if(Th1_sm>180) {Th1_sm=360-Th1_sm; Phi1_sm-=180;};
-		if(Th2_sm>180) {Th2_sm=360-Th2_sm; Phi2_sm-=180;};
-		if(Th3_sm>180) {Th3_sm=360-Th3_sm; Phi3_sm-=180;};
+		// if(Th1_sm>180) {Th1_sm=360-Th1_sm; Phi1_sm-=180;};
+		// if(Th2_sm>180) {Th2_sm=360-Th2_sm; Phi2_sm-=180;};
+		// if(Th3_sm>180) {Th3_sm=360-Th3_sm; Phi3_sm-=180;};
 
-		//Cykliczne Warunki na Phi
+		// //Cykliczne Warunki na Phi
 
-		if(Phi1_sm>180) Phi1_sm-=360;
-		if(Phi2_sm>180) Phi2_sm-=360;
-		if(Phi3_sm>180) Phi3_sm-=360;
+		// if(Phi1_sm>180) Phi1_sm-=360;
+		// if(Phi2_sm>180) Phi2_sm-=360;
+		// if(Phi3_sm>180) Phi3_sm-=360;
 
-		if(Phi1_sm<-180) Phi1_sm+=360;
-		if(Phi2_sm<-180) Phi2_sm+=360;
-		if(Phi3_sm<-180) Phi3_sm+=360;
+		// if(Phi1_sm<-180) Phi1_sm+=360;
+		// if(Phi2_sm<-180) Phi2_sm+=360;
+		// if(Phi3_sm<-180) Phi3_sm+=360;
 
 
 		Float_t MM1,MM2,MM3,MM1_sm,MM2_sm,MM3_sm,MM1_f,MM2_f,MM3_f;
@@ -747,6 +743,7 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 		if(isnan(Th1_f)) f_nan++;
 
+		// if(fProb>0.1){
 		// MM1_f=calc_MM(En2_f,En3_f,Th2_f,Th3_f,Phi2_f,Phi3_f,1);
 		// MM2_f=calc_MM(En1_f,En3_f,Th1_f,Th3_f,Phi1_f,Phi3_f,1);
 		MM3_f=calc_MM(En1_f,En2_f,Th1_f,Th2_f,Phi1_f,Phi2_f,0);
@@ -754,21 +751,23 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 		// hMM1_f->Fill(MM1_f);
 		// hMM2_f->Fill(MM2_f);
 		hMM3_f->Fill(MM3_f);
+		if(fChi2>0){
 		hChi2->Fill(fChi2);
+		}
 		hProbability->Fill(fProb);
-
-		Th1_prev->Fill(Th1_sm);
 		Phi1_prev->Fill(Phi1_sm);
-		Th2_prev->Fill(Th2_sm);
-		Phi2_prev->Fill(Phi2_sm);
+		Th1_prev->Fill(Th1_sm);
 		En1_prev->Fill(En1_sm);
+		Phi2_prev->Fill(Phi2_sm);
+		Th2_prev->Fill(Th2_sm);
 		En2_prev->Fill(En2_sm);
 
-		Th1_after->Fill(Th1_f);
+
 		Phi1_after->Fill(Phi1_f);
-		Th2_after->Fill(Th2_f);
-		Phi2_after->Fill(Phi2_f);
+		Th1_after->Fill(Th1_f);
 		En1_after->Fill(En1_f);
+		Phi2_after->Fill(Phi2_f);
+		Th2_after->Fill(Th2_f);
 		En2_after->Fill(En2_f);
 
 
@@ -780,8 +779,7 @@ Float_t Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po r
 
 		treef->Fill();
 
-
-	}
+}
 cout<<endl;
 cout<<"ilosc nan: "<<f_nan<<endl;
 
