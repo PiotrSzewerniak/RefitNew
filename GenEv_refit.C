@@ -275,7 +275,7 @@ Int_t fit()
 // TMatrixD D = Feta_eval();
 // TMatrixD d = f_eval();
     // double lr = 0.015;
-    double lr = 0.5;
+    double lr = 0.08;
     TMatrixD alpha0(fN * cov_dim, 1), alpha(fN * cov_dim, 1);
     alpha0 = ytemp;
     alpha = alpha0;
@@ -360,7 +360,7 @@ Int_t fit()
         // double d_const = fabs(d(0,0));
         // double d_const = 5;
 
-        if(fabs(chi2-chisqrd)<20){
+        if(fabs(chi2-chisqrd)<10){
         // if(fabs(chi2-chisqrd)<1000000 && d_const<1000000 && sqrt(sum0)<1000000){
         // if(fabs(chi2-chisqrd)<0.7){
             // fIteration = q;
@@ -718,8 +718,8 @@ float Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po roz
     TH1F *Phi1_prev=new TH1F("Phi1_prev","Phi1_prev",200,0,200);
     TH1F *Th2_prev=new TH1F("Th2_prev","Th2_prev",200,0,100);
     TH1F *Phi2_prev=new TH1F("Phi2_prev","Phi2_prev",200,0,200);
-    TH1F *En1_prev=new TH1F("En1_prev","En1_prev",200,0,200);
-    TH1F *En2_prev=new TH1F("En2_prev","En2_prev",200,0,200);
+    TH1F *En1_prev=new TH1F("En1_prev","En1_prev",200,-20,200);
+    TH1F *En2_prev=new TH1F("En2_prev","En2_prev",200,-20,200);
 
     TH1F *Th1_after=new TH1F("Th1_after","Th1_after",200,0,100);
     TH1F *Phi1_after=new TH1F("Phi1_after","Phi1_after",200,0,200);
@@ -733,7 +733,7 @@ float Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po roz
     TH1F *hnan=new TH1F("hnan","hnan",200,0,200);
 
     // for(ULong64_t i=0;i<entries;i++){
-    for(ULong64_t i=0;i<250000;i++){
+    for(ULong64_t i=0;i<150000;i++){
         glob_event++;
         Counting(i);
         tree_old->GetEntry(i);
@@ -844,10 +844,6 @@ float Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po roz
             if(fChi2>0){
             hChi2->Fill(fChi2);
             }
-
-            if(fProb>0.05)
-            {
-                hMM3_f->Fill(MM3_f);
                 Phi1_prev->Fill(Phi1_sm);
                 Th1_prev->Fill(Th1_sm);
                 En1_prev->Fill(En1_sm);
@@ -855,6 +851,9 @@ float Th1_f,Th2_f,Th3_f,En1_f,En2_f,En3_f,Phi1_f,Phi2_f,Phi3_f; //Zmienne po roz
                 Th2_prev->Fill(Th2_sm);
                 En2_prev->Fill(En2_sm);
 
+                if(fProb>0.02)
+            {
+                hMM3_f->Fill(MM3_f);
                 Phi1_after->Fill(Phi1_f);
                 Th1_after->Fill(Th1_f);
                 En1_after->Fill(En1_f);
