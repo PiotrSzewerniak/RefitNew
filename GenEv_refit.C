@@ -13,6 +13,7 @@
 #include "TMatrixD.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include <TStyle.h>
 #define Pi_180 0.01745329251994
 #define Rad2Deg 57.2957795
 #define Deg2Rad 0.0174532925
@@ -213,21 +214,23 @@ TMatrixD Feta_eval(TMatrixD y)
 }
 
 
-Int_t fit(double lr, int q, float deltachi)
+Int_t fit()
 {
-    // double lr = 0.0006;
-    // double lr = 0.01;
+    double lr = 0.13;
+    // double lr = 0.03;
     TMatrixD alpha0(fN * cov_dim, 1), alpha(fN * cov_dim, 1);
     alpha0 = ytemp;
     alpha = alpha0;
     double chi2 = 1e6;
     TMatrixD D = Feta_eval(alpha);
     TMatrixD d = f_eval(alpha);
-    // Int_t q = 0;
+    Int_t q = 0;
     Int_t fConverged = 0;
-    iter=0;
+    iter = 0;
+    deltachi = 0;
+    double chisqrd = 0.;
 
-    for (q = 0; q < 40; q++)
+    for (q = 0; q < 5; q++)
     {
         TMatrixD DT(D.GetNcols(), D.GetNrows());
         DT.Transpose(D);
@@ -240,17 +243,16 @@ Int_t fit(double lr, int q, float deltachi)
         lambdaT.Transpose(lambda);
         TMatrixD neu_alpha(fN * cov_dim, 1);
         neu_alpha = alpha - lr * V * DT * lambda;
-        double chisqrd = 0.;
+        chisqrd = 0.;
 
         for (int p = 0; p < lambda.GetNrows(); p++)
         {
-            // cout<<"lambdaT: "<<lambdaT(0,0)<<" d: "<<d(0,0)<<endl;
             chisqrd = lambdaT(0, p) * d(p, 0);
-            // chisqrd = lambdaT(0, p) * d(p, 0)/10000;
-            // cout<<"Ev: "<<glob_event<<" q: "<<q<<" chi2: "<<chi2<<" chisqrd: "<<chisqrd<<endl;
         }
 
-        if(fabs(abs(chi2-chisqrd))<deltachi)
+        deltachi = fabs(chi2-chisqrd);
+
+        if(fabs(chi2-chisqrd)<20)
         {
             fConverged = 1;
             iter=q;
@@ -300,7 +302,7 @@ TMatrixD GetFitVal(TMatrixD y)
     return y_fit;
 }
 
-int GenEv_refit(double lr, int q, float deltachi)
+int GenEv_refit()
 {
     clock_t fbegin;
     clock_t fend;
@@ -432,7 +434,7 @@ int GenEv_refit(double lr, int q, float deltachi)
 
     TH1F *hMM1_sm= new TH1F("hMM1_sm","Smeared Missing Mass of 1st part.",100,900,1000);
     TH1F *hMM2_sm= new TH1F("hMM2_sm","Smeared Missing Mass of 2nd part.",100,900,1000);
-    TH1F *hMM3_sm= new TH1F("hMM3_sm","Smeared Missing Mass of 3rd part.",100,900,1000);
+    TH1F *hMM3_sm= new TH1F("hMM3_sm","Smeared Missing Mass of 3rd part.",200,920,960);
 
     TH1F *hMM1= new TH1F("hMM1","Missing Mass of 1st part.",100,900,1000);
     TH1F *hMM2= new TH1F("hMM2","Missing Mass of 2nd part.",100,900,1000);
@@ -469,117 +471,123 @@ int GenEv_refit(double lr, int q, float deltachi)
     treef->Branch("Probability",&fProb,"Probability/F");
 
     treef->Branch("Converged",&Converged,"Converged/I");
+    treef->Branch("nq",&iter,"nq/I");
 
     TH1F *hMM1_f= new TH1F("hMM1_f","Smeared Missing Mass of 1st part.",200,920,955);
     TH1F *hMM2_f= new TH1F("hMM2_f","Smeared Missing Mass of 2nd part.",200,920,955);
-    TH1F *hMM3_f= new TH1F("hMM3_f","Smeared Missing Mass of 3rd part.",200,900,1000);
+    TH1F *hMM3_f= new TH1F("hMM3_f","Fitted Missing Mass of 3rd part.",200,920,960);
 
     TH1F *hChi2=new TH1F("Chi2","Chi2",200,0,50);
     TH1F *hProbability=new TH1F("Probability","Probability",100,0,1);
 
-    TH1F *Th1_prev=new TH1F("Th1_prev","Th1_prev",200,0,100);
     TH1F *Phi1_prev=new TH1F("Phi1_prev","Phi1_prev",200,-200,200);
-    TH1F *Th2_prev=new TH1F("Th2_prev","Th2_prev",200,0,100);
+    TH1F *Th1_prev=new TH1F("Th1_prev","Th1_prev",200,8,45);
+    TH1F *En1_prev=new TH1F("En1_prev","En1_prev",200,-20,150);
     TH1F *Phi2_prev=new TH1F("Phi2_prev","Phi2_prev",200,-200,200);
-    TH1F *En1_prev=new TH1F("En1_prev","En1_prev",200,-20,200);
-    TH1F *En2_prev=new TH1F("En2_prev","En2_prev",200,-20,200);
+    TH1F *Th2_prev=new TH1F("Th2_prev","Th2_prev",200,8,45);
+    TH1F *En2_prev=new TH1F("En2_prev","En2_prev",200,-20,150);
 
-    TH1F *Th1_after=new TH1F("Th1_after","Th1_after",200,0,100);
     TH1F *Phi1_after=new TH1F("Phi1_after","Phi1_after",200,-200,200);
-    TH1F *Th2_after=new TH1F("Th2_after","Th2_after",200,0,100);
+    TH1F *Th1_after=new TH1F("Th1_after","Th1_after",200,8,45);
+    TH1F *En1_after=new TH1F("En1_after","En1_after",200,-20,150);
     TH1F *Phi2_after=new TH1F("Phi2_after","Phi2_after",200,-200,200);
-    TH1F *En1_after=new TH1F("En1_after","En1_after",200,0,200);
-    TH1F *En2_after=new TH1F("En2_after","En2_after",200,0,200);
+    TH1F *Th2_after=new TH1F("Th2_after","Th2_after",200,8,45);
+    TH1F *En2_after=new TH1F("En2_after","En2_after",200,-20,150);
 
     TH1F *hdeltachi=new TH1F("hdeltachi","hdeltachi",600,0,40);
     TH1F *hq=new TH1F("hq","hq",200,-1,100);
     TH1F *hnan=new TH1F("hnan","hnan",200,0,200);
 
     // for(ULong64_t i=0;i<entries;i++){
-    for(ULong64_t i=0;i<15000;i++)
+    for(ULong64_t i=0;i<250000;i++)
     {
         glob_event++;
         Counting(i);
         tree_old->GetEntry(i);
 
-        float MM1,MM2,MM3,MM1_sm,MM2_sm,MM3_sm,MM1_f,MM2_f,MM3_f;
+        if(En1_sm>30 && En1_sm>30)
+        // if(En1_sm<30 || En1_sm<30)
+        {
 
-        // MM1=calc_MM(En2,En3,Th2,Th3,Phi2,Phi3,1);
-        // MM2=calc_MM(En1,En3,Th1,Th3,Phi1,Phi3,1);
-        MM3=calc_MM(En1,En2,Th1,Th2,Phi1,Phi2,0);
+            float MM1,MM2,MM3,MM1_sm,MM2_sm,MM3_sm,MM1_f,MM2_f,MM3_f;
 
-        // MM1_sm=calc_MM(En2_sm,En3_sm,Th2_sm,Th3_sm,Phi2_sm,Phi3_sm,1);
-        // MM2_sm=calc_MM(En1_sm,En3_sm,Th1_sm,Th3_sm,Phi1_sm,Phi3_sm,1);
-        MM3_sm=calc_MM(En1_sm,En2_sm,Th1_sm,Th2_sm,Phi1_sm,Phi2_sm,0);
+            // MM1=calc_MM(En2,En3,Th2,Th3,Phi2,Phi3,1);
+            // MM2=calc_MM(En1,En3,Th1,Th3,Phi1,Phi3,1);
+            MM3=calc_MM(En1,En2,Th1,Th2,Phi1,Phi2,0);
 
-        // hMM1->Fill(MM1);
-        // hMM2->Fill(MM2);
-        hMM3->Fill(MM3);
+            // MM1_sm=calc_MM(En2_sm,En3_sm,Th2_sm,Th3_sm,Phi2_sm,Phi3_sm,1);
+            // MM2_sm=calc_MM(En1_sm,En3_sm,Th1_sm,Th3_sm,Phi1_sm,Phi3_sm,1);
+            MM3_sm=calc_MM(En1_sm,En2_sm,Th1_sm,Th2_sm,Phi1_sm,Phi2_sm,0);
 
-        // hMM1_sm->Fill(MM1_sm);
-        // hMM2_sm->Fill(MM2_sm);
-        hMM3_sm->Fill(MM3_sm);
+            // hMM1->Fill(MM1);
+            // hMM2->Fill(MM2);
+            hMM3->Fill(MM3);
 
-        tree->Fill();
+            // hMM1_sm->Fill(MM1_sm);
+            // hMM2_sm->Fill(MM2_sm);
+            hMM3_sm->Fill(MM3_sm);
 
-        // SetValues(Phi1_sm, Th1_sm, En1_sm, Phi2_sm, Th2_sm, En2_sm, Phi3_sm, Th3_sm, En3_sm);
-        // SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2, sigma_Phi3, sigma_Th3, sigma_En3);
-        
-        SetValues(Phi1_sm, Th1_sm, En1_sm, Phi2_sm, Th2_sm, En2_sm);
-        SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2);
-        
-        Converged = fit(lr, q, deltachi);
-        
-        TMatrixD FitVal = GetFitVal(ytemp);
+            tree->Fill();
 
-        Phi1_f = FitVal(0,0);
-        Th1_f = FitVal(1,0);
-        En1_f = FitVal(2,0);
-
-        Phi2_f = FitVal(3,0);
-        Th2_f = FitVal(4,0);
-        En2_f = FitVal(5,0);
-
-        // Phi3_f = FitVal(6,0);
-        // Th3_f = FitVal(7,0);
-        // En3_f = FitVal(8,0);
-
-        if(isnan(En1_f)) hnan->Fill(En1_sm);
-
-        if(isnan(Phi1_f) || isnan(Th1_f) || isnan(En1_f)) f_nan++;
-
-        // MM1_f=calc_MM(En2_f,En3_f,Th2_f,Th3_f,Phi2_f,Phi3_f,1);
-        // MM2_f=calc_MM(En1_f,En3_f,Th1_f,Th3_f,Phi1_f,Phi3_f,1);
-        MM3_f=calc_MM(En1_f,En2_f,Th1_f,Th2_f,Phi1_f,Phi2_f,0);
-
-        // hMM1_f->Fill(MM1_f);
-        // hMM2_f->Fill(MM2_f);
+            // SetValues(Phi1_sm, Th1_sm, En1_sm, Phi2_sm, Th2_sm, En2_sm, Phi3_sm, Th3_sm, En3_sm);
+            // SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2, sigma_Phi3, sigma_Th3, sigma_En3);
             
-        hdeltachi->Fill(deltachi);
-        hq->Fill(iter);
 
-        
-            Phi1_prev->Fill(Phi1_sm);
-            Th1_prev->Fill(Th1_sm);
-            En1_prev->Fill(En1_sm);
-            Phi2_prev->Fill(Phi2_sm);
-            Th2_prev->Fill(Th2_sm);
-            En2_prev->Fill(En2_sm);
+            SetValues(Phi1_sm, Th1_sm, En1_sm, Phi2_sm, Th2_sm, En2_sm);
+            SetCovariance(sigma_Phi1, sigma_Th1, sigma_En1, sigma_Phi2, sigma_Th2, sigma_En2);
+            
+            Converged = fit();
+            
+            TMatrixD FitVal = GetFitVal(ytemp);
 
-        //     if(Converged==1)
-        // {
-            hMM3_f->Fill(MM3_f);
-            Phi1_after->Fill(Phi1_f);
-            Th1_after->Fill(Th1_f);
-            En1_after->Fill(En1_f);
-            Phi2_after->Fill(Phi2_f);
-            Th2_after->Fill(Th2_f);
-            En2_after->Fill(En2_f);
+            Phi1_f = FitVal(0,0);
+            Th1_f = FitVal(1,0);
+            En1_f = FitVal(2,0);
+
+            Phi2_f = FitVal(3,0);
+            Th2_f = FitVal(4,0);
+            En2_f = FitVal(5,0);
+
+            // Phi3_f = FitVal(6,0);
+            // Th3_f = FitVal(7,0);
+            // En3_f = FitVal(8,0);
+
+            if(isnan(En1_f)) hnan->Fill(En1_sm);
+
+            if(isnan(Phi1_f) || isnan(Th1_f) || isnan(En1_f)) f_nan++;
+
+                // MM1_f=calc_MM(En2_f,En3_f,Th2_f,Th3_f,Phi2_f,Phi3_f,1);
+                // MM2_f=calc_MM(En1_f,En3_f,Th1_f,Th3_f,Phi1_f,Phi3_f,1);
+                MM3_f=calc_MM(En1_f,En2_f,Th1_f,Th2_f,Phi1_f,Phi2_f,0);
+
+                // hMM1_f->Fill(MM1_f);
+                // hMM2_f->Fill(MM2_f);
+                hq->Fill(iter);
+
+                hdeltachi->Fill(deltachi);
+                Phi1_prev->Fill(Phi1_sm);
+                Th1_prev->Fill(Th1_sm);
+                En1_prev->Fill(En1_sm);
+                Phi2_prev->Fill(Phi2_sm);
+                Th2_prev->Fill(Th2_sm);
+                En2_prev->Fill(En2_sm);
+
+                if(Converged==1)
+            {
+                hMM3_f->Fill(MM3_f);
+                Phi1_after->Fill(Phi1_f);
+                Th1_after->Fill(Th1_f);
+                En1_after->Fill(En1_f);
+                Phi2_after->Fill(Phi2_f);
+                Th2_after->Fill(Th2_f);
+                En2_after->Fill(En2_f);
+            }
+
             hProbability->Fill(fProb);
             hChi2->Fill(fChi2);
-        // }
 
-        treef->Fill();
+            treef->Fill();
+        }
     }
 
     cout<<endl;
@@ -594,6 +602,9 @@ int GenEv_refit(double lr, int q, float deltachi)
     // hMM2_sm->Write();
     hMM3_sm->Write();
 
+    gStyle->SetHistLineWidth(2);
+    gStyle->SetTitleFontSize(.06);
+    gStyle->SetLabelSize(0.046, "xyz");
     Results->Divide(3,4);
 
     Results->cd(1);
