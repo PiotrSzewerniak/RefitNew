@@ -10,13 +10,18 @@ int iter=0;
 
 void hist::Loop()
 {
+   // gStyle->SetOptFit();
    gStyle->SetHistLineWidth(2);
-   gStyle->SetTitleFontSize(.06);
-   gStyle->SetLabelSize(0.046, "xyz");
+   gStyle->SetLabelSize(0.05, "xyz");
+   gStyle->SetOptTitle(0);
+   gStyle->SetOptStat(1101);
+   gStyle->SetStatFontSize(0.07);
+   TGaxis::SetMaxDigits(3);
 
    TFile *fout = new TFile("hist.root","RECREATE");
 
    TH1F* hConverged = new TH1F("hConverged","hConverged",200,-10,10);
+   TH1F* hChiTheory = new TH1F("hChiTheory","hChiTheory",1000,0,2);
 
    TH1F* Res_spec_Ph1 = new TH1F("Res_spec_Ph1","Res_spec_Ph1",200,-0.25,0.25);
    TH1F* Res_spec_Ph2 = new TH1F("Res_spec_Ph2","Res_spec_Ph2",200,-0.25,0.25);
@@ -59,9 +64,17 @@ void hist::Loop()
 
    TH2F* En1_smvsEn1_f = new TH2F("En1_smvsEn1_f","En1_smvsEn1_f",200,0,200,200,0,200);
 
+   TH1F *Phi1_inp = new TH1F("Phi1_inp","Phi1_inp",200,-200,200);
+   TH1F *Th1_inp = new TH1F("Th1_inp","Th1_inp",200,0,60);
+   TH1F *En1_inp = new TH1F("En1_inp","En1_inp",200,-20,150);
+
+   TH1F *Phi2_inp = new TH1F("Phi2_inp","Phi2_inp",200,-200,200);
+   TH1F *Th2_inp = new TH1F("Th2_inp","Th2_inp",200,0,60);
+   TH1F *En2_inp = new TH1F("En2_inp","En2_inp",200,-20,150);
+
    TH1F *Phi1_sm=new TH1F("Phi1_sm","Phi1_sm",200,-200,200);
    TH1F *Th1_sm=new TH1F("Th1_sm","Th1_sm",200,0,60);
-   TH1F *En1_sm=new TH1F("En1_sm","En1_sm",200,0,150);
+   TH1F *En1_sm=new TH1F("En1_sm","En1_sm",200,-20,150);
 
    TH1F *Phi2_sm=new TH1F("Phi2_sm","Phi2_sm",200,-200,200);
    TH1F *Th2_sm=new TH1F("Th2_sm","Th2_sm",200,0,60);
@@ -112,12 +125,12 @@ void hist::Loop()
    TH1F *En2_inp_En2_fDivEn2_f = new TH1F("En2_inp_En2_fDivEn2_f","En2_inp_En2_fDivEn2_f",200,-0.5,0.5);
 
    TH1F *Phi1_sm_Phi1_fDivPhi1_f = new TH1F("Phi1_sm_Phi1_fDivPhi1_f","Phi1_sm_Phi1_fDivPhi1_f",200,-0.01,0.01);
-   TH1F *Th1_sm_Th1_fDivTh1_f = new TH1F("Th1_sm_Th1_fDivTh1_f","Th1_sm_Th1_fDivTh1_f",200,-0.5,0.5);
-   TH1F *En1_sm_En1_fDivEn1_f = new TH1F("En1_sm_En1_fDivEn1_f","En1_sm_En1_fDivEn1_f",200,-0.5,0.5);
+   TH1F *Th1_sm_Th1_fDivTh1_f = new TH1F("Th1_sm_Th1_fDivTh1_f","Th1_sm_Th1_fDivTh1_f",200,-0.1,0.1);
+   TH1F *En1_sm_En1_fDivEn1_f = new TH1F("En1_sm_En1_fDivEn1_f","En1_sm_En1_fDivEn1_f",200,-0.3,0.3);
 
    TH1F *Phi2_sm_Phi2_fDivPhi2_f = new TH1F("Phi2_sm_Phi2_fDivPhi2_f","Phi2_sm_Phi2_fDivPhi2_f",200,-0.01,0.01);
-   TH1F *Th2_sm_Th2_fDivTh2_f = new TH1F("Th2_sm_Th2_fDivTh2_f","Th2_sm_Th2_fDivTh2_f",200,-0.5,0.5);
-   TH1F *En2_sm_En2_fDivEn2_f = new TH1F("En2_sm_En2_fDivEn2_f","En2_sm_En2_fDivEn2_f",200,-0.5,0.5);
+   TH1F *Th2_sm_Th2_fDivTh2_f = new TH1F("Th2_sm_Th2_fDivTh2_f","Th2_sm_Th2_fDivTh2_f",200,-0.1,0.1);
+   TH1F *En2_sm_En2_fDivEn2_f = new TH1F("En2_sm_En2_fDivEn2_f","En2_sm_En2_fDivEn2_f",200,-0.3,0.3);
    
    TH1F *Phi1_inp_Phi1_sm = new TH1F("Phi1_inp_Phi1_sm","Phi1_inp_Phi1_sm",200,-6,6);
    TH1F *Th1_inp_Th1_sm = new TH1F("Th1_inp_Th1_sm","Th1_inp_Th1_sm",200,-6,6);
@@ -147,6 +160,13 @@ void hist::Loop()
    Float_t sigma_Th1, sigma_Th2;
    Float_t sigma_Ph1, sigma_Ph2;
 
+   double chitheory;
+   for(double i=0;i<2;i=i+0.000001)
+   {
+      chitheory=ROOT::Math::chisquared_pdf(i,1,0);
+      hChiTheory->Fill(chitheory);
+   }
+
    if (fChain == 0) return;
    Long64_t nentries = fChain->GetEntriesFast();
    Long64_t nbytes = 0, nb = 0;
@@ -157,7 +177,7 @@ void hist::Loop()
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-      if(Converged==1) 
+      if(Converged==1 && Probability > 0.02) 
       {
          Res_spec_Ph1->Fill(Phi_1_sm-Phi_1);
          Res_spec_Ph2->Fill(Phi_2_sm-Phi_2);
@@ -260,6 +280,14 @@ void hist::Loop()
 
       hConverged->Fill(Converged);
 
+      Phi1_inp->Fill(Phi_1_inp);
+      Th1_inp->Fill(Theta_1_inp);
+      En1_inp->Fill(Energy_1_inp);
+
+      Phi2_inp->Fill(Phi_2_inp);
+      Th2_inp->Fill(Theta_2_inp);
+      En2_inp->Fill(Energy_2_inp);
+
       Phi1_sm->Fill(Phi_1_sm);
       Th1_sm->Fill(Theta_1_sm);
       En1_sm->Fill(Energy_1_sm);
@@ -291,7 +319,7 @@ void hist::Loop()
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-      if(Converged==1)
+      if(Converged==1 && Probability > 0.02)
       {
          Pull_spec_Ph1->Fill((Phi_1_sm-Phi_1)/sigma_Ph1);
          Pull_spec_Ph2->Fill((Phi_2_sm-Phi_2)/sigma_Ph2);
@@ -355,8 +383,17 @@ void hist::Loop()
    En2_f_En2_inp->Write();
 
    hConverged->Write();
+   hChiTheory->Write();
 
    En1_smvsEn1_f->Write();
+
+   Phi1_inp->Write();
+   Th1_inp->Write();
+   En1_inp->Write();
+
+   Phi2_inp->Write();
+   Th2_inp->Write();
+   En2_inp->Write();
 
    Phi1_sm->Write();
    Th1_sm->Write();
@@ -415,40 +452,44 @@ void hist::Loop()
    En2_sm_En2_f-> Write();
 
 
-   TCanvas *Residuals = new TCanvas("Residuals","Residuals",3000,3000);
+   TCanvas *Residuals = new TCanvas("Residuals","Residuals",3000,2000);
    Residuals->Divide(3,2);
-   TCanvas *QA_res = new TCanvas("QA_res","QA_res",3000,3000);
+   TCanvas *QA_res = new TCanvas("QA_res","QA_res",3000,2000);
    QA_res->Divide(3,2);
-   TCanvas *Pull = new TCanvas("Pull","Pull",3000,3000);
+   TCanvas *Pull = new TCanvas("Pull","Pull",3000,2000);
    Pull->Divide(3,2);
-   TCanvas *Compare = new TCanvas("Compare","Compare",3000,3000);
+   TCanvas *Compare = new TCanvas("Compare","Compare",3000,1000);
    Compare->Divide(3,1);
-   TCanvas *Compare2 = new TCanvas("Compare2","Compare2",3000,3000);
+   TCanvas *Compare2 = new TCanvas("Compare2","Compare2",3000,1000);
    Compare2->Divide(3,1);
-   TCanvas *QAandRes1 = new TCanvas("QAandRes1","QAandRes1",3000,3000);
+   TCanvas *QAandRes1 = new TCanvas("QAandRes1","QAandRes1",3000,2000);
    QAandRes1->Divide(3,2);
-   TCanvas *QAandRes2 = new TCanvas("QAandRes2","QAandRes2",3000,3000);
+   TCanvas *QAandRes2 = new TCanvas("QAandRes2","QAandRes2",3000,2000);
    QAandRes2->Divide(3,2);
-   TCanvas *FitInp = new TCanvas("FitInp","FitInp",3000,3000);
+   TCanvas *FitInp = new TCanvas("FitInp","FitInp",3000,2000);
    FitInp->Divide(3,2);
-   TCanvas *PhiSummary1 = new TCanvas("PhiSummary1","PhiSummary1",3000,3000);
+   TCanvas *PhiSummary1 = new TCanvas("PhiSummary1","PhiSummary1",3000,2000);
    PhiSummary1->Divide(3,2);
-   TCanvas *ThetaSummary1 = new TCanvas("ThetaSummary1","ThetaSummary1",3000,3000);
+   TCanvas *ThetaSummary1 = new TCanvas("ThetaSummary1","ThetaSummary1",3000,2000);
    ThetaSummary1->Divide(3,2);
-   TCanvas *EnergySummary1 = new TCanvas("EnergySummary1","EnergySummary1",3000,3000);
+   TCanvas *EnergySummary1 = new TCanvas("EnergySummary1","EnergySummary1",3000,2000);
    EnergySummary1->Divide(3,2);
-   TCanvas *PhiSummary2 = new TCanvas("PhiSummary2","PhiSummary2",3000,3000);
+   TCanvas *PhiSummary2 = new TCanvas("PhiSummary2","PhiSummary2",3000,2000);
    PhiSummary2->Divide(3,2);
-   TCanvas *ThetaSummary2 = new TCanvas("ThetaSummary2","ThetaSummary2",3000,3000);
+   TCanvas *ThetaSummary2 = new TCanvas("ThetaSummary2","ThetaSummary2",3000,2000);
    ThetaSummary2->Divide(3,2);
-   TCanvas *EnergySummary2 = new TCanvas("EnergySummary2","EnergySummary2",3000,3000);
+   TCanvas *EnergySummary2 = new TCanvas("EnergySummary2","EnergySummary2",3000,2000);
    EnergySummary2->Divide(3,2);
-   TCanvas *PhiSummary3 = new TCanvas("PhiSummary3","PhiSummary3",3000,3000);
+   TCanvas *PhiSummary3 = new TCanvas("PhiSummary3","PhiSummary3",3000,2000);
    PhiSummary3->Divide(3,2);
-   TCanvas *ThetaSummary3 = new TCanvas("ThetaSummary3","ThetaSummary3",3000,3000);
+   TCanvas *ThetaSummary3 = new TCanvas("ThetaSummary3","ThetaSummary3",3000,2000);
    ThetaSummary3->Divide(3,2);
-   TCanvas *EnergySummary3 = new TCanvas("EnergySummary3","EnergySummary3",3000,3000);
+   TCanvas *EnergySummary3 = new TCanvas("EnergySummary3","EnergySummary3",3000,2000);
    EnergySummary3->Divide(3,2);
+   TCanvas *SmAndInp1 = new TCanvas("SmAndInp1", "SmAndInp1", 1300,1000);
+   SmAndInp1->Divide(2,2);
+   TCanvas *SmAndInp2 = new TCanvas("SmAndInp2", "SmAndInp2", 1300,1000);
+   SmAndInp2->Divide(2,2);
 
    Residuals->cd(1);
    Res_spec_Ph1->Draw();
@@ -621,8 +662,8 @@ void hist::Loop()
    PhiSummary1->Write();
    PhiSummary1->SaveAs("PhiSummary1.png");
 
-   gStyle->SetOptFit();
    PhiSummary2->cd(1);
+
    TH1F *histogram;
    histogram = (TH1F*)fout->Get("Phi1_inp_Phi1_smDivPhi1_sm");
    double max = histogram->GetBinCenter(histogram->GetMaximumBin());
@@ -686,7 +727,7 @@ void hist::Loop()
    ThetaSummary2->cd(3);
    histogram = (TH1F*)fout->Get("Th1_sm_Th1_fDivTh1_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.015,max+0.018);
+   histogram->Fit("gaus","WL","",max-0.002,max+0.002);
    Th1_sm_Th1_fDivTh1_f->Draw();
    ThetaSummary2->cd(4);
    histogram = (TH1F*)fout->Get("Th2_inp_Th2_smDivTh2_sm");
@@ -701,7 +742,7 @@ void hist::Loop()
    ThetaSummary2->cd(6);
    histogram = (TH1F*)fout->Get("Th2_sm_Th2_fDivTh2_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.018,max+0.015);
+   histogram->Fit("gaus","WL","",max-0.0025,max+0.0025);
    Th2_sm_Th2_fDivTh2_f->Draw();
 
    ThetaSummary2->Write();
@@ -737,7 +778,7 @@ void hist::Loop()
    EnergySummary2->cd(3);
    histogram = (TH1F*)fout->Get("En1_sm_En1_fDivEn1_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.25,max+0.3);
+   histogram->Fit("gaus","WL","",max-0.010,max+0.010);
    En1_sm_En1_fDivEn1_f->Draw();
    EnergySummary2->cd(4);
    histogram = (TH1F*)fout->Get("En2_inp_En2_smDivEn2_sm");
@@ -752,7 +793,7 @@ void hist::Loop()
    EnergySummary2->cd(6);
    histogram = (TH1F*)fout->Get("En2_sm_En2_fDivEn2_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.25,max+0.27);
+   histogram->Fit("gaus","WL","",max-0.010,max+0.010);
    En2_sm_En2_fDivEn2_f->Draw();
 
    EnergySummary2->Write();
@@ -771,7 +812,7 @@ void hist::Loop()
    PhiSummary3->cd(3);
    histogram = (TH1F*)fout->Get("Phi1_sm_Phi1_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.02,max+0.017);
+   histogram->Fit("gaus","WL","",max-0.017,max+0.014);
    Phi1_sm_Phi1_f->Draw();
    PhiSummary3->cd(4);
    histogram = (TH1F*)fout->Get("Phi2_inp_Phi2_sm");
@@ -786,7 +827,7 @@ void hist::Loop()
    PhiSummary3->cd(6);
    histogram = (TH1F*)fout->Get("Phi2_sm_Phi2_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.02,max+0.017);
+   histogram->Fit("gaus","WL","",max-0.016,max+0.014);
    Phi2_sm_Phi2_f->Draw();
 
    PhiSummary3->Write();
@@ -805,7 +846,7 @@ void hist::Loop()
    ThetaSummary3->cd(3);
    histogram = (TH1F*)fout->Get("Th1_sm_Th1_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.017,max+0.02);
+   histogram->Fit("gaus","WL","",max-0.015,max+0.018);
    Th1_sm_Th1_f->Draw();
    ThetaSummary3->cd(4);
    histogram = (TH1F*)fout->Get("Th2_inp_Th2_sm");
@@ -820,7 +861,7 @@ void hist::Loop()
    ThetaSummary3->cd(6);
    histogram = (TH1F*)fout->Get("Th2_sm_Th2_f");
    max = histogram->GetBinCenter(histogram->GetMaximumBin());
-   histogram->Fit("gaus","WL","",max-0.017,max+0.016);
+   histogram->Fit("gaus","WL","",max-0.017,max+0.014);
    Th2_sm_Th2_f->Draw();
 
    ThetaSummary3->Write();
@@ -859,7 +900,88 @@ void hist::Loop()
 
    EnergySummary3->Write();
    EnergySummary3->SaveAs("EnergySummary3.png");
-   
+
+   SmAndInp1->cd(1);
+   Phi1_sm->GetXaxis()->SetTitle("Azimuthal angle #phi [deg]");
+   Phi1_sm->GetXaxis()->SetTitleSize(0.051);
+   Phi1_sm->GetXaxis()->SetLabelOffset(0.01);
+   Phi1_sm->GetYaxis()->SetTitle("Counts (normalized)");
+   Phi1_sm->GetYaxis()->SetTitleSize(0.051);
+   Phi1_sm->GetYaxis()->SetLabelOffset(0.01);
+   Phi1_sm->GetXaxis()->SetNdivisions(9);
+   Phi1_sm->Scale(1./Phi1_sm->Integral());
+   Phi1_sm->Draw("PLC");
+   Phi1_inp->Scale(1./Phi1_inp->Integral());
+   Phi1_inp->Draw("SAME PLC");
+
+   SmAndInp1->cd(2);
+   Th1_sm->GetXaxis()->SetTitle("Polar angle #theta [deg]");
+   Th1_sm->GetXaxis()->SetTitleSize(0.051);
+   Th1_sm->GetXaxis()->SetLabelOffset(0.01);
+   Th1_sm->GetYaxis()->SetTitle("Counts (normalized)");
+   Th1_sm->GetYaxis()->SetTitleSize(0.051);
+   Th1_sm->GetYaxis()->SetLabelOffset(0.01);
+   Th1_sm->Scale(1./Th1_sm->Integral());
+   Th1_sm->Draw("PLC");
+   Th1_inp->Scale(1./Th1_inp->Integral());
+   Th1_inp->Draw("SAME PLC");
+
+   SmAndInp1->cd(3);
+   En1_sm->GetXaxis()->SetTitle("Energy [MeV]");
+   En1_sm->GetXaxis()->SetTitleSize(0.051);
+   En1_sm->GetXaxis()->SetLabelOffset(0.01);
+   En1_sm->GetYaxis()->SetTitle("Counts (normalized)");
+   En1_sm->GetYaxis()->SetTitleSize(0.051);
+   En1_sm->GetYaxis()->SetLabelOffset(0.01);
+   En1_sm->Scale(1./En1_sm->Integral());
+   En1_sm->Draw("PLC");
+   En1_inp->Scale(1./En1_inp->Integral());
+   En1_inp->Draw("SAME PLC");
+
+   SmAndInp1->Write();
+   SmAndInp1->SaveAs("SmAndInp1.png");
+   SmAndInp1->SaveAs("SmAndInp1.root");
+
+   SmAndInp2->cd(1);
+   Phi2_sm->GetXaxis()->SetTitle("Azimuthal angle #phi [deg]");
+   Phi2_sm->GetXaxis()->SetTitleSize(0.049);
+   Phi2_sm->GetXaxis()->SetLabelOffset(0.01);
+   Phi2_sm->GetYaxis()->SetTitle("Counts (normalized)");
+   Phi2_sm->GetYaxis()->SetTitleSize(0.049);
+   Phi2_sm->GetYaxis()->SetLabelOffset(0.01);
+   Phi2_sm->GetXaxis()->SetNdivisions(9);
+   Phi2_sm->Scale(1./Phi2_sm->Integral());
+   Phi2_sm->Draw("PLC");
+   Phi2_inp->Scale(1./Phi2_inp->Integral());
+   Phi2_inp->Draw("SAME PLC");
+
+   SmAndInp2->cd(2);
+   Th2_sm->GetXaxis()->SetTitle("Polar angle #theta [deg]");
+   Th2_sm->GetXaxis()->SetTitleSize(0.049);
+   Th2_sm->GetXaxis()->SetLabelOffset(0.01);
+   Th2_sm->GetYaxis()->SetTitle("Counts (normalized)");
+   Th2_sm->GetYaxis()->SetTitleSize(0.049);
+   Th2_sm->GetYaxis()->SetLabelOffset(0.01);
+   Th2_sm->Scale(1./Th2_sm->Integral());
+   Th2_sm->Draw("PLC");
+   Th2_inp->Scale(1./Th2_inp->Integral());
+   Th2_inp->Draw("SAME PLC");
+
+   SmAndInp2->cd(3);
+   En2_sm->GetXaxis()->SetTitle("Energy [MeV]");
+   En2_sm->GetXaxis()->SetTitleSize(0.049);
+   En2_sm->GetXaxis()->SetLabelOffset(0.01);
+   En2_sm->GetYaxis()->SetTitle("Counts (normalized)");
+   En2_sm->GetYaxis()->SetTitleSize(0.049);
+   En2_sm->GetYaxis()->SetLabelOffset(0.01);
+   En2_sm->Scale(1./En2_sm->Integral());
+   En2_sm->Draw("PLC");
+   En2_inp->Scale(1./En2_inp->Integral());
+   En2_inp->Draw("SAME PLC");
+
+   SmAndInp2->Write();
+   SmAndInp2->SaveAs("SmAndInp2.png");
+   SmAndInp2->SaveAs("SmAndInp2.root");
 
    fout->Close();
 }

@@ -20,7 +20,7 @@
 int funny_sign_count=0;
 
 TCanvas *Results = new TCanvas("Results","Results",3000,3000);
-TCanvas *Various = new TCanvas("Various","Various",3000,3000);
+TCanvas *Various = new TCanvas("Various","Various",1300,1000);
 
 Int_t cov_dim = 3;
 Int_t fN = 2;
@@ -216,11 +216,10 @@ TMatrixD Feta_eval(TMatrixD y)
 
 Int_t fit()
 {
-    double lr = 0.13;
-    // double lr = 0.03;
     TMatrixD alpha0(fN * cov_dim, 1), alpha(fN * cov_dim, 1);
     alpha0 = ytemp;
     alpha = alpha0;
+    double lr = 0.13;
     double chi2 = 1e6;
     TMatrixD D = Feta_eval(alpha);
     TMatrixD d = f_eval(alpha);
@@ -307,6 +306,12 @@ int GenEv_refit()
     clock_t fbegin;
     clock_t fend;
     fbegin = clock();
+
+    gStyle->SetHistLineWidth(2);
+    gStyle->SetLabelSize(0.05, "xyz");
+    gStyle->SetOptTitle(0);
+    gStyle->SetOptStat(1101);
+    gStyle->SetStatFontSize(0.07);
 
     float Th1,Th2,Th3,En1,En2,En3,Phi1,Phi2,Phi3,pTyp1,pTyp2,pTyp3; //Zmienne pierwotne z Generatora PLUTO
     float Th1_sm,Th2_sm,Th3_sm,En1_sm,En2_sm,En3_sm,Phi1_sm,Phi2_sm,Phi3_sm; //Zmienne po rozmyciu
@@ -497,14 +502,26 @@ int GenEv_refit()
     TH1F *hdeltachi=new TH1F("hdeltachi","hdeltachi",600,0,40);
     TH1F *hq=new TH1F("hq","hq",200,-1,100);
     TH1F *hnan=new TH1F("hnan","hnan",200,0,200);
+    TH1F *hMMMean = new TH1F("hMMMean","hMMMean",200,930,945);
+    TH1F *hMMStdDev = new TH1F("hMMStdDev","hMMStdDev",200,1,15);
+    TH1F *hProbMean = new TH1F("hProbMean","hProbMean",200,0,1);
+    TH1F *hProbStdDev = new TH1F("hProbStdDev","hProbStdDev",200,0,1);
+    TH2F *hlrvsdeltachi = new TH2F("hlrvsdeltachi","hlrvsdeltachi",200,0,1,200,1,100);
 
-    // for(ULong64_t i=0;i<entries;i++){
+    // for(ULong64_t i=0;i<entries;i++)
     for(ULong64_t i=0;i<250000;i++)
     {
         glob_event++;
         Counting(i);
         tree_old->GetEntry(i);
-
+        // if(true)
+        Phi1_prev->Fill(Phi1_sm);
+        Th1_prev->Fill(Th1_sm);
+        En1_prev->Fill(En1_sm);
+        Phi2_prev->Fill(Phi2_sm);
+        Th2_prev->Fill(Th2_sm);
+        En2_prev->Fill(En2_sm);
+        
         if(En1_sm>30 && En1_sm>30)
         // if(En1_sm<30 || En1_sm<30)
         {
@@ -563,18 +580,15 @@ int GenEv_refit()
                 // hMM1_f->Fill(MM1_f);
                 // hMM2_f->Fill(MM2_f);
                 hq->Fill(iter);
-
                 hdeltachi->Fill(deltachi);
-                Phi1_prev->Fill(Phi1_sm);
-                Th1_prev->Fill(Th1_sm);
-                En1_prev->Fill(En1_sm);
-                Phi2_prev->Fill(Phi2_sm);
-                Th2_prev->Fill(Th2_sm);
-                En2_prev->Fill(En2_sm);
 
                 if(Converged==1)
             {
-                hMM3_f->Fill(MM3_f);
+                if(fProb>0.02)
+                {
+                    hMM3_f->Fill(MM3_f);
+                }
+
                 Phi1_after->Fill(Phi1_f);
                 Th1_after->Fill(Th1_f);
                 En1_after->Fill(En1_f);
@@ -589,6 +603,26 @@ int GenEv_refit()
             treef->Fill();
         }
     }
+
+    float MMMean, MMStdDev, ProbMean, ProbStdDev;
+    MMMean = hMM3_f->GetMean(1);
+    hMMMean->Fill(MMMean);
+    MMStdDev = hMM3_f->GetStdDev(1);
+    hMMStdDev->Fill(MMStdDev);
+    ProbMean = hProbability->GetMean(1);
+    hProbMean->Fill(ProbMean);
+    ProbStdDev = hProbability->GetStdDev(1);
+    hProbStdDev->Fill(ProbStdDev);
+
+    treef->Fill();
+
+    // cout<<"lr: "<<lr<<" deltachi: "<<deltachi<<endl;
+    if(abs(MMMean - 938.1) < 0.15 && abs(MMStdDev - 2.536) < 0.5 && abs(ProbMean - 0.1748) < 0.02 && abs(ProbStdDev - 0.2662) < 0.02)
+    {
+        // hlrvsdeltachi->Fill(deltachi, lr);
+    }
+
+    treef->Fill();
 
     cout<<endl;
     cout<<"ilosc nan: "<<f_nan<<endl;
@@ -659,6 +693,11 @@ int GenEv_refit()
     hdeltachi->Write();
     hq->Write();
     hnan->Write();
+    hMMMean->Write();
+    hMMStdDev->Write();
+    hProbMean->Write();
+    hProbStdDev->Write();
+    hlrvsdeltachi->Write();
 
     Various->Divide(2,2);
 
